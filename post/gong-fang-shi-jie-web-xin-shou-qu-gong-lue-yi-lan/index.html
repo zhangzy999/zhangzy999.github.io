@@ -1,92 +1,99 @@
-<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" >
-
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>攻防世界web新手区javascript审计-&#34;sample js&#34; | Gridea</title>
-<meta name="description" content="我是沙雕小张，一个热爱计算机的普通人，一位极客追逐者。">
-
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1587971750099">
-
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1587972354694">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="攻防世界web新手区javascript审计-&#34;sample js&#34; | Gridea - Atom Feed" href="https://zhangzy999.github.io//atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
 
-<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 
+    <meta name="description" content="打开环境，浏览器弹出窗口提示我们输入密码
 
-<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”
+得到一串js代码，应该是让我们审计js代码没跑了o.o
 
-
+    function dechiffre(pass_enc)..." />
+    <meta name="keywords" content="CTF" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
   </head>
   <body>
-  
-    <nav class="navbar border fixed split-nav">
-  <div class="nav-brand">
-    <h3><a href="https://zhangzy999.github.io/">Gridea</a></h3>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://zhangzy999.github.io/">
+  <img class="avatar" src="https://zhangzy999.github.io//images/avatar.png?v=1587972354694" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    我是沙雕小张，一个热爱计算机的普通人，一位极客追逐者。
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
   </div>
-  <div class="collapsible">
-    <input id="collapsible1" type="checkbox" name="collapsible1">
-    <button>
-      <label for="collapsible1">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
-      </label>
-    </button>
-    <div class="collapsible-body">
-      <ul class="inline">
-        
-          <li>
-            
-              <a href="/" class="menu">
-                首页
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/archives" class="menu">
-                归档
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/tags" class="menu">
-                标签
-              </a>
-            
-          </li>
-        
-      </ul>
-    </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   </div>
-</nav>
+</div>
 
-    <div id="top" class="row site">
-      <div class="sm-12 md-8 col">
-        <div class="paper">
-          <article class="article">
-            <h1>攻防世界web新手区javascript审计-&#34;sample js&#34;</h1>
-            <p class="article-meta">
-              2020-04-27
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              攻防世界web新手区javascript审计-&#34;sample js&#34;
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-04-27
+              </span>
+              <span>
+                4 min read
+              </span>
               
-                <a href="https://zhangzy999.github.io/tag/toXtjW_Oa/" class="badge success">
-                  CTF
+                <a href="https://zhangzy999.github.io/tag/toXtjW_Oa/" class="post-tag">
+                  # CTF
                 </a>
               
-            </p>
+            </div>
             
-              <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3842647101,4253857314&amp;fm=26&amp;gp=0.jpg" alt="攻防世界web新手区javascript审计-&#34;sample js&#34;">
+              <img class="post-feature-image" src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3842647101,4253857314&amp;fm=26&amp;gp=0.jpg" alt="">
             
-            <div class="post-content">
-              <p>打开环境，浏览器弹出窗口提示我们输入密码<br>
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>打开环境，浏览器弹出窗口提示我们输入密码<br>
 <img src="https://zhangzy999.github.io//post-images/1587959009848.png" alt="" loading="lazy"></p>
 <p>我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”<br>
 得到一串js代码，应该是让我们审计js代码没跑了o.o<br>
@@ -133,81 +140,67 @@ console.log(password);
 <p><img src="https://zhangzy999.github.io//post-images/1587971171189.png" alt="" loading="lazy"><br>
 以上就是本题的解法，个人认为该题目还是有那么一丢丢难度的（毕竟我js不太好😶）</p>
 
+              </div>
+              <div class="toc-container">
+                
+              </div>
             </div>
           </article>
         </div>
-        <div class="paper" data-aos="fade-in">
-          
-        </div>
-        
-      </div>
 
-      <div class="sm-12 md-4 col sidebar">
-  <div class="paper info-container">
-    <img src="https://zhangzy999.github.io//images/avatar.png?v=1587971750099" class="no-responsive avatar">
-    <div class="text-muted">我是沙雕小张，一个热爱计算机的普通人，一位极客追逐者。</div>
-    <div class="social-container">
-      
         
-      
+
         
-      
-        
-      
-        
-      
-        
-      
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      最新文章
-    </div>
-    <div class="row">
-      <ul>
-        
-          
-            <li>
-              <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/">攻防世界web新手区javascript审计-&#34;sample js&#34;</a>
-            </li>
-          
-        
-      </ul>
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      标签列表
-    </div>
-    <div class="row">
-      
-        <a href="https://zhangzy999.github.io/tag/toXtjW_Oa/" class="badge success">
-          CTF
-        </a>
-      
-    </div>
-  </div>
-  <div class="paper">
-    Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
-  </div>
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
 </div>
 
-
+      </div>
     </div>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      hljs.initHighlightingOnLoad()
 
-<script type="application/javascript">
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
 
-AOS.init();
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
 
-hljs.initHighlightingOnLoad()
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
 
-</script>
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
 
-
-
-
+    </script>
   </body>
 </html>
