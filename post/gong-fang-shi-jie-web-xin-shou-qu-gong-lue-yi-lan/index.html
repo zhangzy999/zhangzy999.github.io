@@ -1,22 +1,108 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://zhangzy999.github.io/</id>
-    <title>Gridea</title>
-    <updated>2020-04-27T07:10:28.554Z</updated>
-    <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://zhangzy999.github.io/"/>
-    <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
-    <subtitle>我是沙雕小张，一个热爱计算机的普通人，一位极客追逐者。</subtitle>
-    <logo>https://zhangzy999.github.io/images/avatar.png</logo>
-    <icon>https://zhangzy999.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Gridea</rights>
-    <entry>
-        <title type="html"><![CDATA[攻防世界web新手区javascript审计-"sample js"]]></title>
-        <id>https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/</id>
-        <link href="https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/">
-        </link>
-        <updated>2020-04-27T03:24:13.000Z</updated>
-        <content type="html"><![CDATA[<p>打开环境，浏览器弹出窗口提示我们输入密码<br>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>攻防世界web新手区javascript审计-&#34;sample js&#34; | Gridea</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1587971411525">
+<link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="打开环境，浏览器弹出窗口提示我们输入密码
+
+我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”
+得到一串js代码，应该是让我们审计js代码没跑了o.o
+
+    function dechiffre(pass_enc)..." />
+    <meta name="keywords" content="CTF" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://zhangzy999.github.io/">
+        <img src="https://zhangzy999.github.io//images/avatar.png?v=1587971411525" class="site-logo">
+        <h1 class="site-title">Gridea</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      我是沙雕小张，一个热爱计算机的普通人，一位极客追逐者。
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">攻防世界web新手区javascript审计-&#34;sample js&#34;</h2>
+            <div class="post-date">2020-04-27</div>
+            
+              <div class="feature-container" style="background-image: url('https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3842647101,4253857314&amp;fm=26&amp;gp=0.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>打开环境，浏览器弹出窗口提示我们输入密码<br>
 <img src="https://zhangzy999.github.io//post-images/1587959009848.png" alt="" loading="lazy"></p>
 <p>我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”<br>
 得到一串js代码，应该是让我们审计js代码没跑了o.o<br>
@@ -62,6 +148,45 @@ console.log(password);
 </code></pre>
 <p><img src="https://zhangzy999.github.io//post-images/1587971171189.png" alt="" loading="lazy"><br>
 以上就是本题的解法，个人认为该题目还是有那么一丢丢难度的（毕竟我js不太好😶）</p>
-]]></content>
-    </entry>
-</feed>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://zhangzy999.github.io/tag/toXtjW_Oa/" class="tag">
+                    CTF
+                  </a>
+                
+              </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>
