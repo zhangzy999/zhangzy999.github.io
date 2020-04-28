@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-04-28T14:19:46.664Z</updated>
+    <updated>2020-04-28T15:00:28.340Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,29 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[日常生活—欢迎加入暗堡高智商俱乐部！]]></title>
+        <id>https://zhangzy999.github.io/post/anbao/</id>
+        <link href="https://zhangzy999.github.io/post/anbao/">
+        </link>
+        <updated>2020-04-28T14:52:24.000Z</updated>
+        <content type="html"><![CDATA[<p>暗堡高智商俱乐部，是一群沙雕们的世界，是女装大佬们的天堂！<br>
+如果你有梦想，如果你有希望，那么就来加入我们吧！<br>
+只有你想不到，没有我们做不到，奥力给，每天的水群和抢红包活动，你值得参与<br>
+在我们的家庭群里，你能找到各种各样的表情包，能发现各种各样的奇葩人才<br>
+心动不如行动，来看看我们的官网，是不是很酷炫吊炸天呢！<br>
+<a href="%22http://hiddensite.mysxl.cn/%22">暗堡官网</a><br>
+<img src="https://zhangzy999.github.io//post-images/1588085691771.png" alt="" loading="lazy"><br>
+我们的证书是不是也很好看高大上嘞，通过免试或者考试，你，将被暗堡收录<br>
+在网页上你可以找到你的名字，你还可以拥有自己的证书，奥力给，还等什么<br>
+证书如下哟：<br>
+<img src="https://zhangzy999.github.io//post-images/1588085849998.png" alt="" loading="lazy"><br>
+自此，你有了装逼的资本，你有了无尽的财富，你有了一个会女装的天才会长……<br>
+咳咳，跑题了，有意向者前往官网吧，那里有暗堡的联系方式<br>
+暗堡<s>低智商</s>高智商协会，等你来战！<br>
+<a href="%22http://hiddensite.mysxl.cn/%22">好看的人都点进来了，而丑的人还在犹豫！</a></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[CTF之一道硬核的XSS梦幻联动SQL注入的赛题—[CISCN2019 华东北赛区]Web2]]></title>
         <id>https://zhangzy999.github.io/post/web2-xss/</id>
