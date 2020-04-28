@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-04-28T02:54:26.313Z</updated>
+    <updated>2020-04-28T02:56:15.737Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -24,7 +24,10 @@
 在这里我们先不fuzz模糊测试了，对，你还要打开burp，还要加载字典😵（懒）<br>
 我们就直接淦吧！！！<br>
 对了，插句话，之前一段时间专注于sql注入的学习，然后本博主做了一系列的教学和刷题视频放到了哔哩哔哩上，有mysql的一些知识和极客大挑战中所有的sql注入赛题，哔哩哔哩搜索”yuyu-宇“，带给你不一样的快乐♂<br>
-好，言归正传，我们开始验证下是否是sql注入，输入<code>1' #</code>页面能够正常回显，那就没跑了<br>
+好，言归正传，我们开始验证下是否是sql注入，输入</p>
+<pre><code>1' #
+</code></pre>
+<p>页面能够正常回显，那就没跑了<br>
 下面order by干一干<br>
 <img src="https://zhangzy999.github.io//post-images/1588037367163.png" alt="" loading="lazy"><br>
 2不报错，3就报错了，好，那么select语句里面应该有两个字段<br>
@@ -51,9 +54,10 @@ very good!<br>
 <code>';show columns from `1919810931114514`; #</code><br>
 <img src="https://zhangzy999.github.io//post-images/1588039381912.png" alt="" loading="lazy"><br>
 可以看到我们想要的flag字段就在这个表里面，这时候，彷佛我们已经看到了胜利的曙光<br>
-OK，我们在看看”words“表里面有啥<br>
-<code>';show columns from words; #</code><br>
-<img src="https://zhangzy999.github.io//post-images/1588039674796.png" alt="" loading="lazy"><br>
+OK，我们在看看”words“表里面有啥</p>
+<pre><code>';show columns from words; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588039674796.png" alt="" loading="lazy"><br>
 诶，这个是不是看起来有那么一丢丢熟悉的亚子，没错了，我们一开始查询的时候呢，就是输入id查数据，应该就是在这个表里面查的，现在问题来了，我们想要flag，但是，select又被防火墙干掉了，彷佛是一个无解的题目，但是，<strong>本文最精彩最精彩最精彩的地方来了</strong><br>
 笔者见过常规的绕过防火墙保护的姿势，但是看到这个姿势，我当时真的眼前一亮，学到了学到了，果然，做渗透的师傅们的脑洞都很大emm<br>
 <strong>用alter和rename把&quot;flag&quot;字段所在的表命名为'words'，给它改成&quot;data&quot;，再把原本的&quot;id&quot;改成别的名字，这样，因为数据库查的是&quot;id&quot;，它可不管&quot;id&quot;里面是啥，他就只认识&quot;id&quot;这个名字，所以我们就理所应当的拿到了flag</strong><br>
