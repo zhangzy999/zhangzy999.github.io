@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-04-27T10:28:21.061Z</updated>
+    <updated>2020-04-28T02:51:55.876Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,110 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[CTF-强网杯-“随便注”]]></title>
+        <id>https://zhangzy999.github.io/post/ctf-qiang-wang-bei-sui-bian-zhu/</id>
+        <link href="https://zhangzy999.github.io/post/ctf-qiang-wang-bei-sui-bian-zhu/">
+        </link>
+        <updated>2020-04-28T00:46:16.000Z</updated>
+        <content type="html"><![CDATA[<p>我们打开环境，很简单的一个页面，这emmm<br>
+<img src="https://zhangzy999.github.io//post-images/1588035195215.png" alt="" loading="lazy"><br>
+大家肯定首先想到了SQL注入，那么其实呢，这道题吧……<br>
+没错它就是SQL注入（逃<br>
+然后我们输入1，2之类的，发现页面正常回显<br>
+在这里我们先不fuzz模糊测试了，对，你还要打开burp，还要加载字典😵（懒）<br>
+我们就直接淦吧！！！<br>
+对了，插句话，之前一段时间专注于sql注入的学习，然后本博主做了一系列的教学和刷题视频放到了哔哩哔哩上，有mysql的一些知识和极客大挑战中所有的sql注入赛题，哔哩哔哩搜索”yuyu-宇“，带给你不一样的快乐♂<br>
+好，言归正传，我们开始验证下是否是sql注入，输入<code>1' #</code>页面能够正常回显，那就没跑了<br>
+下面order by干一干<br>
+<img src="https://zhangzy999.github.io//post-images/1588037367163.png" alt="" loading="lazy"><br>
+2不报错，3就报错了，好，那么select语句里面应该有两个字段<br>
+联合查询下康康~<br>
+<img src="https://zhangzy999.github.io//post-images/1588037579533.png" alt="" loading="lazy"><br>
+<s>mmp过滤了那么多玩意我还怎么玩，溜了溜了</s><br>
+好，这个时候既然过滤了select，貌似不可能注入了，不过，等等，<s>愚蠢的</s>开发者的第一个失误，没有过滤分号！（ohhhhh）<br>
+堆叠注入来一波试试！</p>
+<pre><code class="language-MySql">1';show databases; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588038142436.png" alt="" loading="lazy"><br>
+very good!<br>
+我们继续搞一搞</p>
+<pre><code class="language-mysql">1' show tables; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588038521819.png" alt="" loading="lazy"><br>
+可以看到后端默认查询的数据库有俩表，接下来要用到那么一丢丢小技巧了</p>
+<blockquote>
+<p>如何用show语句查列嘞？<br>
+<code>show columns from 表</code></p>
+</blockquote>
+<p>所以我们查查这俩表里面都有什么好康的（逐渐猥琐）<br>
+先看看那个数字命名的表吧，注意哈，如果表名是数字要加上反引号<br>
+<code>';show columns from `1919810931114514`; #</code></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CTF-强网杯-“随便注”]]></title>
+        <id>https://zhangzy999.github.io/post/suibianzhu/</id>
+        <link href="https://zhangzy999.github.io/post/suibianzhu/">
+        </link>
+        <updated>2020-04-28T00:46:16.000Z</updated>
+        <content type="html"><![CDATA[<p>我们打开环境，很简单的一个页面，这emmm<br>
+<img src="https://zhangzy999.github.io//post-images/1588035195215.png" alt="" loading="lazy"><br>
+大家肯定首先想到了SQL注入，那么其实呢，这道题吧……<br>
+没错它就是SQL注入（逃<br>
+然后我们输入1，2之类的，发现页面正常回显<br>
+在这里我们先不fuzz模糊测试了，对，你还要打开burp，还要加载字典😵（懒）<br>
+我们就直接淦吧！！！<br>
+对了，插句话，之前一段时间专注于sql注入的学习，然后本博主做了一系列的教学和刷题视频放到了哔哩哔哩上，有mysql的一些知识和极客大挑战中所有的sql注入赛题，哔哩哔哩搜索”yuyu-宇“，带给你不一样的快乐♂<br>
+好，言归正传，我们开始验证下是否是sql注入，输入<code>1' #</code>页面能够正常回显，那就没跑了<br>
+下面order by干一干<br>
+<img src="https://zhangzy999.github.io//post-images/1588037367163.png" alt="" loading="lazy"><br>
+2不报错，3就报错了，好，那么select语句里面应该有两个字段<br>
+联合查询下康康~<br>
+<img src="https://zhangzy999.github.io//post-images/1588037579533.png" alt="" loading="lazy"><br>
+<s>mmp过滤了那么多玩意我还怎么玩，溜了溜了</s><br>
+好，这个时候既然过滤了select，貌似不可能注入了，不过，等等，<s>愚蠢的</s>开发者的第一个失误，没有过滤分号！（ohhhhh）<br>
+堆叠注入来一波试试！</p>
+<pre><code class="language-MySql">1';show databases; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588038142436.png" alt="" loading="lazy"><br>
+very good!<br>
+我们继续搞一搞</p>
+<pre><code class="language-mysql">1' show tables; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588038521819.png" alt="" loading="lazy"><br>
+可以看到后端默认查询的数据库有俩表，接下来要用到那么一丢丢小技巧了</p>
+<blockquote>
+<p>如何用show语句查列嘞？<br>
+<code>show columns from 表</code></p>
+</blockquote>
+<p>所以我们查查这俩表里面都有什么好康的（逐渐猥琐）<br>
+先看看那个数字命名的表吧，注意哈，如果表名是数字要加上反引号<br>
+<code>';show columns from `1919810931114514`; #</code><br>
+<img src="https://zhangzy999.github.io//post-images/1588039381912.png" alt="" loading="lazy"><br>
+可以看到我们想要的flag字段就在这个表里面，这时候，彷佛我们已经看到了胜利的曙光<br>
+OK，我们在看看”words“表里面有啥<br>
+<code>';show columns from words; #</code><br>
+<img src="https://zhangzy999.github.io//post-images/1588039674796.png" alt="" loading="lazy"><br>
+诶，这个是不是看起来有那么一丢丢熟悉的亚子，没错了，我们一开始查询的时候呢，就是输入id查数据，应该就是在这个表里面查的，现在问题来了，我们想要flag，但是，select又被防火墙干掉了，彷佛是一个无解的题目，但是，<strong>本文最精彩最精彩最精彩的地方来了</strong><br>
+笔者见过常规的绕过防火墙保护的姿势，但是看到这个姿势，我当时真的眼前一亮，学到了学到了，果然，做渗透的师傅们的脑洞都很大emm<br>
+<strong>用alter和rename把&quot;flag&quot;字段所在的表命名为'words'，给它改成&quot;data&quot;，再把原本的&quot;id&quot;改成别的名字，这样，因为数据库查的是&quot;id&quot;，它可不管&quot;id&quot;里面是啥，他就只认识&quot;id&quot;这个名字，所以我们就理所应当的拿到了flag</strong><br>
+最终的攻击语句</p>
+<pre><code class="language-mysql">';alter table words rename 小张到此一游;alter table `1919810931114514` rename words;
+alter table words change flag id varchar(100);#
+</code></pre>
+<p>注意，最后一条语句中的words其实是我们的那个flag所在的表，它的名字已经被我们改成words了<br>
+然后我们来用万能密码爆flag就可以啦~<br>
+<code>' or 1=1 #</code><br>
+<img src="https://zhangzy999.github.io//post-images/1588041692949.png" alt="" loading="lazy"><br>
+至此，我们已经拿到这个题目的flag了，然后再让我们来康康表名有没有被改（滑稽）<br>
+<img src="https://zhangzy999.github.io//post-images/1588041782420.png" alt="" loading="lazy"><br>
+很好，如果是真实环境，不知道网站的数据库管理人员看到“小张到此一游”的表情该有多么精彩👻<br>
+所以，开发的时候一定要兼顾安全！！尤其是涉及到数据库的安全<br>
+<s>我们回到攻击语句那里，甚至可以改下原来的words字段名字，改成 &quot;小张 is my hero&quot;</s><br>
+大家有问题可以在哔哩哔哩私信我哟</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[攻防世界web新手区javascript审计-"sample js"]]></title>
         <id>https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/</id>
