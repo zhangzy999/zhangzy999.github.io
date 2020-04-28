@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-04-28T02:51:55.876Z</updated>
+    <updated>2020-04-28T02:52:40.083Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,47 +10,6 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
-    <entry>
-        <title type="html"><![CDATA[CTF-强网杯-“随便注”]]></title>
-        <id>https://zhangzy999.github.io/post/ctf-qiang-wang-bei-sui-bian-zhu/</id>
-        <link href="https://zhangzy999.github.io/post/ctf-qiang-wang-bei-sui-bian-zhu/">
-        </link>
-        <updated>2020-04-28T00:46:16.000Z</updated>
-        <content type="html"><![CDATA[<p>我们打开环境，很简单的一个页面，这emmm<br>
-<img src="https://zhangzy999.github.io//post-images/1588035195215.png" alt="" loading="lazy"><br>
-大家肯定首先想到了SQL注入，那么其实呢，这道题吧……<br>
-没错它就是SQL注入（逃<br>
-然后我们输入1，2之类的，发现页面正常回显<br>
-在这里我们先不fuzz模糊测试了，对，你还要打开burp，还要加载字典😵（懒）<br>
-我们就直接淦吧！！！<br>
-对了，插句话，之前一段时间专注于sql注入的学习，然后本博主做了一系列的教学和刷题视频放到了哔哩哔哩上，有mysql的一些知识和极客大挑战中所有的sql注入赛题，哔哩哔哩搜索”yuyu-宇“，带给你不一样的快乐♂<br>
-好，言归正传，我们开始验证下是否是sql注入，输入<code>1' #</code>页面能够正常回显，那就没跑了<br>
-下面order by干一干<br>
-<img src="https://zhangzy999.github.io//post-images/1588037367163.png" alt="" loading="lazy"><br>
-2不报错，3就报错了，好，那么select语句里面应该有两个字段<br>
-联合查询下康康~<br>
-<img src="https://zhangzy999.github.io//post-images/1588037579533.png" alt="" loading="lazy"><br>
-<s>mmp过滤了那么多玩意我还怎么玩，溜了溜了</s><br>
-好，这个时候既然过滤了select，貌似不可能注入了，不过，等等，<s>愚蠢的</s>开发者的第一个失误，没有过滤分号！（ohhhhh）<br>
-堆叠注入来一波试试！</p>
-<pre><code class="language-MySql">1';show databases; #
-</code></pre>
-<p><img src="https://zhangzy999.github.io//post-images/1588038142436.png" alt="" loading="lazy"><br>
-very good!<br>
-我们继续搞一搞</p>
-<pre><code class="language-mysql">1' show tables; #
-</code></pre>
-<p><img src="https://zhangzy999.github.io//post-images/1588038521819.png" alt="" loading="lazy"><br>
-可以看到后端默认查询的数据库有俩表，接下来要用到那么一丢丢小技巧了</p>
-<blockquote>
-<p>如何用show语句查列嘞？<br>
-<code>show columns from 表</code></p>
-</blockquote>
-<p>所以我们查查这俩表里面都有什么好康的（逐渐猥琐）<br>
-先看看那个数字命名的表吧，注意哈，如果表名是数字要加上反引号<br>
-<code>';show columns from `1919810931114514`; #</code></p>
-]]></content>
-    </entry>
     <entry>
         <title type="html"><![CDATA[CTF-强网杯-“随便注”]]></title>
         <id>https://zhangzy999.github.io/post/suibianzhu/</id>
