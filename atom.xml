@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-04-29T00:39:23.905Z</updated>
+    <updated>2020-05-05T14:00:57.159Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -11,7 +11,7 @@
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
     <entry>
-        <title type="html"><![CDATA[日常生活—两个给我很大帮助的大佬的博客地址]]></title>
+        <title type="html"><![CDATA[日常生活—大佬们的博客地址]]></title>
         <id>https://zhangzy999.github.io/post/dalaoboke/</id>
         <link href="https://zhangzy999.github.io/post/dalaoboke/">
         </link>
@@ -29,6 +29,10 @@
 堆堆大佬的博客干货满满哟<br>
 友链：<a href="%22https://duitutu.cn%22">堆堆的博客</a><br>
 <img src="https://zhangzy999.github.io//post-images/1588087482160.png" alt="" loading="lazy"></p>
+<p>咳咳，接下来这位大佬是个美女哦~<br>
+魔法少女雪殇，实力强的一批，大概战斗力能顶上十个我，sql注入，xss，文件上传，网站挂马，模板漏洞……无一不是她的强项，关键是是个小姐姐！还在等什么，快去她的博客逛逛吧！！！<br>
+友链：<a href="%22http://z.mofalongmao.xyz/wordpress/%22">魔法少女雪殇的博客</a><br>
+<img src="https://zhangzy999.github.io//post-images/1588687239795.png" alt="" loading="lazy"></p>
 <p>再次感谢大佬们的倾心相授，信息安全和CTF长路漫漫，终生学习，不断进步。<br>
 路在脚下，心在远方。</p>
 ]]></content>
