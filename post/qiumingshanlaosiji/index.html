@@ -30,29 +30,9 @@
       
         <div class="animated fadeInLeft" style="animation-delay: 0.4s">
           <p class="my-4 text-gray-600 font-light hidden lg:block">
-            我是小张，一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。
+            文章目录
           </p>
-          <div class="animated fadeInLeft social-container hidden lg:block" style="animation-delay: 0.6s">
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
+          <div class="toc-container hidden lg:block">
             
           </div>
         </div>
@@ -91,92 +71,74 @@
 </div>
 <div class="mask" onclick="closeMenu()">
 </div>
-      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4">
-        <h2 class="text-lg text-gray-700 mb-8">
-          <i class="ri-archive-line"></i> 文章归档
-        </h2>
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">CTF—Bugku：秋名山老司机(快速反弹POST)—来一起开车鸭~</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-05-07 / 2 min read
+        </div>
+        
+          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://t1.hxzdhn.com/uploads/tu/202004/9999/4b00dff89a.jpg" alt="">
+        
+        <div class="post-content yue">
+          <p>无聊，博客太少了，于是乎随便做俩题写个wp来凑凑数（逃<br>
+这个题不算难——前提是你会python<br>
+咳咳，进入正题，我们打开页面，发现如下所示：<br>
+<img src="https://zhangzy999.github.io//post-images/1588822298727.PNG" alt="" loading="lazy"><br>
+页面啥都莫得，只有一句话：请在两秒内提交表达式的值<br>
+好吧，除非我是速算界的超级大脑和手速界的扛把子，要不然肯定做不到<br>
+分析下哈，提交的话，用什么办法提交？get？post？<br>
+当我再刷新两下页面的时候，就出现了一句提示<br>
+<img src="https://zhangzy999.github.io//post-images/1588822470508.PNG" alt="" loading="lazy"><br>
+嗯，很好，告诉我们用post提交，而且提示我们参数是value<br>
+那我们就上python吧<br>
+网上的wp大多是正则表达式，我就纳闷了，split方法不香吗   o.o  😑 (正则大佬请无视)<br>
+<img src="https://zhangzy999.github.io//post-images/1588822588012.PNG" alt="" loading="lazy"><br>
+上图是我用split方法进行调试的结果<br>
+好8，直接祭出改良版的脚本：（因为有时候数太大python计算好像会出现一定的精确度上的误差）<br>
+我选择了一个while循环来优化，看着也省心☠️<br>
+<img src="https://zhangzy999.github.io//post-images/1588822722154.PNG" alt="" loading="lazy"></p>
+<pre><code class="language-python">import requests
+while True:
+    url = 'http://123.206.87.240:8002/qiumingshan/'
+    s = requests.session()
+    r = s.get(url)
+    temp = r.text.split(&quot;div&gt;&quot;)[1].split('=')[0]  
+    flag = eval(temp)
+    data = {'value':flag}
+    response = s.post(url,data = data)
+    if &quot;Bug&quot; in response.text:
+        print response.text
+        break
+</code></pre>
+<p>然后就是flag辣<br>
+<img src="https://zhangzy999.github.io//post-images/1588822875045.PNG" alt="" loading="lazy"></p>
+
+        </div>
+
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/toXtjW_Oa/">
+            <span class="flex-auto">CTF</span>
+          </a>
         
 
-        <div class="archives-container">
+
+        <div class="flex justify-between py-8">
           
-            <h2 class="text-gray-600 py-4 animated fadeIn">
-              <i class="ri-map-pin-time-line"></i>
-              2020
-            </h2>
-            
-              
-                <a href="https://zhangzy999.github.io/post/qiumingshanlaosiji/" class="post">
-                  <h2 class="inline-block font-bold text-lg post-title animated fadeIn">
-                    CTF—Bugku：秋名山老司机(快速反弹POST)—来一起开车鸭~
-                  </h2>
-                </a>
-                <div class="text-sm font-light mt-3 mb-6 text-gray-400 animated fadeInDown" style="animation-delay: 0.4s">2020-05-07</div>
-              
-            
-              
-                <a href="https://zhangzy999.github.io/post/dalaoboke/" class="post">
-                  <h2 class="inline-block font-bold text-lg post-title animated fadeIn">
-                    日常生活—大佬们的博客地址
-                  </h2>
-                </a>
-                <div class="text-sm font-light mt-3 mb-6 text-gray-400 animated fadeInDown" style="animation-delay: 0.4s">2020-04-28</div>
-              
-            
-              
-                <a href="https://zhangzy999.github.io/post/anbao/" class="post">
-                  <h2 class="inline-block font-bold text-lg post-title animated fadeIn">
-                    日常生活—欢迎加入暗堡高智商俱乐部！
-                  </h2>
-                </a>
-                <div class="text-sm font-light mt-3 mb-6 text-gray-400 animated fadeInDown" style="animation-delay: 0.4s">2020-04-28</div>
-              
-            
-              
-                <a href="https://zhangzy999.github.io/post/web2-xss/" class="post">
-                  <h2 class="inline-block font-bold text-lg post-title animated fadeIn">
-                    CTF之一道硬核的XSS梦幻联动SQL注入的赛题—[CISCN2019 华东北赛区]Web2
-                  </h2>
-                </a>
-                <div class="text-sm font-light mt-3 mb-6 text-gray-400 animated fadeInDown" style="animation-delay: 0.4s">2020-04-28</div>
-              
-            
-              
-                <a href="https://zhangzy999.github.io/post/zhuzhuxia/" class="post">
-                  <h2 class="inline-block font-bold text-lg post-title animated fadeIn">
-                    日记或者杂七杂八的东东—高数课的&#34;猪猪侠&#34;
-                  </h2>
-                </a>
-                <div class="text-sm font-light mt-3 mb-6 text-gray-400 animated fadeInDown" style="animation-delay: 0.4s">2020-04-28</div>
-              
-            
-              
-                <a href="https://zhangzy999.github.io/post/suibianzhu/" class="post">
-                  <h2 class="inline-block font-bold text-lg post-title animated fadeIn">
-                    CTF-强网杯-“随便注”
-                  </h2>
-                </a>
-                <div class="text-sm font-light mt-3 mb-6 text-gray-400 animated fadeInDown" style="animation-delay: 0.4s">2020-04-28</div>
-              
-            
-              
-                <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/" class="post">
-                  <h2 class="inline-block font-bold text-lg post-title animated fadeIn">
-                    攻防世界web新手区javascript审计-&#34;sample js&#34;
-                  </h2>
-                </a>
-                <div class="text-sm font-light mt-3 mb-6 text-gray-400 animated fadeInDown" style="animation-delay: 0.4s">2020-04-27</div>
-              
-            
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/dalaoboke/">
+                <h3 class="post-title">
+                  日常生活—大佬们的博客地址
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
           
         </div>
 
-        <div>
-          <div class="pagination-container animated fadeIn">
-  
-  
-</div>
+        
 
-        </div>
       </div>
     </div>
 

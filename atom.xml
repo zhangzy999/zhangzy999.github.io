@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-05T14:59:39.178Z</updated>
+    <updated>2020-05-07T03:42:42.416Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,46 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[CTF—Bugku：秋名山老司机(快速反弹POST)—来一起开车鸭~]]></title>
+        <id>https://zhangzy999.github.io/post/qiumingshanlaosiji/</id>
+        <link href="https://zhangzy999.github.io/post/qiumingshanlaosiji/">
+        </link>
+        <updated>2020-05-07T03:28:12.000Z</updated>
+        <content type="html"><![CDATA[<p>无聊，博客太少了，于是乎随便做俩题写个wp来凑凑数（逃<br>
+这个题不算难——前提是你会python<br>
+咳咳，进入正题，我们打开页面，发现如下所示：<br>
+<img src="https://zhangzy999.github.io//post-images/1588822298727.PNG" alt="" loading="lazy"><br>
+页面啥都莫得，只有一句话：请在两秒内提交表达式的值<br>
+好吧，除非我是速算界的超级大脑和手速界的扛把子，要不然肯定做不到<br>
+分析下哈，提交的话，用什么办法提交？get？post？<br>
+当我再刷新两下页面的时候，就出现了一句提示<br>
+<img src="https://zhangzy999.github.io//post-images/1588822470508.PNG" alt="" loading="lazy"><br>
+嗯，很好，告诉我们用post提交，而且提示我们参数是value<br>
+那我们就上python吧<br>
+网上的wp大多是正则表达式，我就纳闷了，split方法不香吗   o.o  😑 (正则大佬请无视)<br>
+<img src="https://zhangzy999.github.io//post-images/1588822588012.PNG" alt="" loading="lazy"><br>
+上图是我用split方法进行调试的结果<br>
+好8，直接祭出改良版的脚本：（因为有时候数太大python计算好像会出现一定的精确度上的误差）<br>
+我选择了一个while循环来优化，看着也省心☠️<br>
+<img src="https://zhangzy999.github.io//post-images/1588822722154.PNG" alt="" loading="lazy"></p>
+<pre><code class="language-python">import requests
+while True:
+    url = 'http://123.206.87.240:8002/qiumingshan/'
+    s = requests.session()
+    r = s.get(url)
+    temp = r.text.split(&quot;div&gt;&quot;)[1].split('=')[0]  
+    flag = eval(temp)
+    data = {'value':flag}
+    response = s.post(url,data = data)
+    if &quot;Bug&quot; in response.text:
+        print response.text
+        break
+</code></pre>
+<p>然后就是flag辣<br>
+<img src="https://zhangzy999.github.io//post-images/1588822875045.PNG" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[日常生活—大佬们的博客地址]]></title>
         <id>https://zhangzy999.github.io/post/dalaoboke/</id>
