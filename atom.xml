@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-07T03:46:17.051Z</updated>
+    <updated>2020-05-12T08:26:44.880Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -75,6 +75,9 @@ while True:
 魔法少女雪殇，实力强的一批，大概战斗力能顶上十个我，sql注入，xss，文件上传，网站挂马，模板漏洞……无一不是她的强项，关键是是个小姐姐！还在等什么，快去她的博客逛逛吧！！！<br>
 友链：<a href="http://z.mofalongmao.xyz/wordpress/">http://z.mofalongmao.xyz/wordpress/</a><br>
 <img src="https://zhangzy999.github.io//post-images/1588687239795.png" alt="" loading="lazy"></p>
+<p>下面是R1v0ir大佬的博客~颜值超高哒！<br>
+友链：<a href="https://r1v0ir.github.io/">https://r1v0ir.github.io/</a><br>
+<img src="https://zhangzy999.github.io//post-images/1589271997965.png" alt="" loading="lazy"></p>
 <p>再次感谢大佬们的倾心相授，信息安全和CTF长路漫漫，终生学习，不断进步。<br>
 路在脚下，心在远方。</p>
 ]]></content>
@@ -217,34 +220,6 @@ OK，拿到cookie了，然后开始扫描康康管理员的后台登录界面<br
 如果大家对sql注入的赛题感兴趣，请在哔哩哔哩上搜索up主：yuyu-宇<br>
 这个是我的主页，我做了很多包括教学视频和刷题视频，都是sql注入方面的<br>
 如果文章内容哪里不对，还请哔哩哔哩私信联系我，蟹蟹大家！！</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[日记或者杂七杂八的东东—高数课的"猪猪侠"]]></title>
-        <id>https://zhangzy999.github.io/post/zhuzhuxia/</id>
-        <link href="https://zhangzy999.github.io/post/zhuzhuxia/">
-        </link>
-        <updated>2020-04-28T03:20:03.000Z</updated>
-        <content type="html"><![CDATA[<p>今天上高数（对，现在正在上）咳咳，老师给我们放了一个歌曲，是小时候我经常看的猪猪侠<br>
-555回忆杀</p>
-<blockquote>
-<p>GGbond，童话里做英雄</p>
-</blockquote>
-<p>555，小时候真好，无忧无虑对吧<br>
-长大了，逐渐懂得就变多了，烦恼也多了，朋友也多了，收获也多了<br>
-怎么说<br>
-长大这件事，是好的。<br>
-长大这件事，也是不好的。<br>
-我昨天就开始决定，每天晚上听&quot;舟长&quot;的直播，哔哩哔哩deelmind，那个1w粉丝的up主就是他，很有趣，有点儿像那种古代的隐士大侠一样<br>
-怎么说呢，也不太对，反正吧，他给人一种信任感和可靠感<br>
-当下社会吧，就是让人感觉还是挺浮躁的，娱乐化就成为一种占据大家眼球的那种感觉<br>
-舟长说：&quot;别人的吃喝拉撒不关我事的&quot;，嗯，我觉得太有道理了<br>
-舟长说：&quot;做事要有动机，有人可能是为了人类的福祉，不要笑话他，你做不到不代表别人做不到好吧&quot;，嗯，有道理<br>
-舟长说：&quot;我一定不会骗你们的，给我几百亿都不会，我觉得这是做人，我应该还算是一个人，所以我有人的底线&quot;，嗯，我相信<br>
-所以呢，&quot;猪猪侠&quot;和大人都有好处对吧，有多少人故作高深，或者感伤也好做作也好：&quot;我想回到小时候，那时无忧无虑，岁月静好&quot;<br>
-嗯...太浮夸，不过我也没资格评论，因为我本来也是一个浮夸的人<br>
-“GGbond，童话里做英雄”<br>
-也就大概只能在童话里吧。</p>
 ]]></content>
     </entry>
     <entry>
