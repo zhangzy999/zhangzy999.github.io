@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-12T08:26:44.880Z</updated>
+    <updated>2020-05-15T04:23:49.609Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,76 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[BUUweb—checkIn，利用.user.ini上传木马]]></title>
+        <id>https://zhangzy999.github.io/post/webcheckIn/</id>
+        <link href="https://zhangzy999.github.io/post/webcheckIn/">
+        </link>
+        <updated>2020-05-15T02:17:05.000Z</updated>
+        <content type="html"><![CDATA[<p>先放上我向大佬学习的原文章：<a href="https://wooyun.js.org/drops/user.ini%E6%96%87%E4%BB%B6%E6%9E%84%E6%88%90%E7%9A%84PHP%E5%90%8E%E9%97%A8.html">大佬文章</a><br>
+我们看看官方手册对于.ini文件的说明：<a href="https://www.php.net/manual/zh/configuration.file.per-user.php">官方PHP手册</a></p>
+<blockquote>
+<p>自 PHP 5.3.0 起，PHP 支持基于每个目录的 .htaccess 风格的 INI 文件。此类文件仅被 CGI／FastCGI SAPI 处理。此功能使得 PECL 的 htscanner 扩展作废。如果使用 Apache，则用 .htaccess 文件有同样效果。<br>
+除了主 php.ini 之外，PHP 还会在每个目录下扫描 INI 文件，从被执行的 PHP 文件所在目录开始一直上升到 web 根目录（$_SERVER['DOCUMENT_ROOT'] 所指定的）。如果被执行的 PHP 文件在 web 根目录之外，则只扫描该目录。</p>
+</blockquote>
+<p>我们可以看到下图中php.ini里面包含了非常多的php的配置，但是这些配置分成了四种：<br>
+<img src="https://zhangzy999.github.io//post-images/1589510286611.png" alt="" loading="lazy"><br>
+我们看看官方对于PHP_INI_*模式的定义：<br>
+<img src="https://zhangzy999.github.io//post-images/1589510381617.png" alt="" loading="lazy"><br>
+可以看到，在PHP_INI_USER模式中，是可以利用.user.ini修改设置的，然而，事实上，除了PHP_INI_SYSTEM外，其余三种模式都可以利用.user.ini来修改设置😶<br>
+但是相对敏感的配置选项，都是PHP_INI_SYSTEM模式，也就是说只能通过php.ini或者httpd.conf来设定......<br>
+8过，在php的配置中有两个灰常有意思的项：<br>
+<img src="https://zhangzy999.github.io//post-images/1589511354756.png" alt="" loading="lazy"><br>
+我们点进去看看这俩玩意到底是啥：<a href="https://www.php.net/manual/zh/ini.core.php#ini.auto-append-file">php核心配置选项说明</a></p>
+<blockquote>
+<p>auto_append_file string:<br>
+Specifies the name of a file that is automatically parsed after the main file. The file is included as if it was called with the require function, so include_path is used.<br>
+The special value none disables auto-appending.<br>
+Note: If the script is terminated with exit(), auto-append will not occur.</p>
+</blockquote>
+<p>翻译成人话就是：可以在同目录下的php文件后面来一个类似于require()函数的功能解析指定的文件，但是php用exit()终止脚本的话，就不可以辣<br>
+auto_prepend_file就是在文件前解析<br>
+嗯……这俩功能是蛮强大的8，那么隐藏木马的思路就是先传个.user.ini，然后自动解析一张图片名，然后那个图片实际上是个图片马，这样就达成了目的，要求还是苛刻的，为啥呢？<br>
+首先，你在上传到的目录下得有php文件，这是前提要求<br>
+第二，当你用于隐藏后门的时候，你得能够上传的了.user.ini文件，也就是说防火墙允许你这样干……<br>
+看似苛刻，但是有的CTF赛题却可以用~<br>
+下面让我们来康康具体的应用8：[SUCTF 2019]CheckIn<br>
+打开环境是一张多么朴实无华的界面呵<br>
+<img src="https://zhangzy999.github.io//post-images/1589512236862.png" alt="" loading="lazy"><br>
+二话不说来给他干个一句话木马上去</p>
+<pre><code class="language-php">&lt;?php @eval($_POST['CyurL3']); ?&gt;
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1589512360743.png" alt="" loading="lazy"><br>
+555,果然不可以，提示我们非法后缀，既然是后缀这块不通过，我们用特殊的来看看，比如双写php，大小写php，用特殊扩展名pht等方法都没办法绕过这个玩意，不信你看源代码嘛（事后出题师傅们放到github上的）<br>
+<img src="https://zhangzy999.github.io//post-images/1589513091150.png" alt="" loading="lazy"><br>
+可以看到只要是ph开头的都被干掉了，htaccess也被干掉了（小声bb：这块不太明白，不是只有apache服务器才能上传.htaccess文件吗，个人猜测当时比赛的时候出题方的服务器是apache，buu上的服务器应该就是nginx了8）<br>
+既然php不可以，那我们把后缀改成jpg试试😎<img src="https://zhangzy999.github.io//post-images/1589513590035.png" alt="" loading="lazy"><br>
+可以看到已经绕过了后缀名检测的机制，但是它告诉我们你的图片里不能有&quot;&lt;?&quot;这个东西哟😭<br>
+莫得事，我们可以用&lt;script&gt;标签来绕过</p>
+<pre><code class="language-javascript">&lt;script language=&quot;php&quot;&gt;eval($_POST['CyurL3']);&lt;/script&gt;
+</code></pre>
+<p>那么我们再上传一波来看看<br>
+<img src="https://zhangzy999.github.io//post-images/1589514478580.png" alt="" loading="lazy"><br>
+还是不行，它还有exif_imagetype这个东西的检测，百度一下知道它是php的一个函数，来读取一个图像的第一个字节并检查其签名，那我们伪造一波8，在前面加上gif的文件头“GIF”<br>
+<img src="https://zhangzy999.github.io//post-images/1589515289607.png" alt="" loading="lazy"><br>
+Ohhhh,上传成功辣<br>
+<img src="https://zhangzy999.github.io//post-images/1589515528926.png" alt="" loading="lazy"><br>
+但是怎么解析就是个大问题了没错吧，你可以看到，上传目录下面有index.php，叫什么名字不重要，重要的是有php文件，这个就很nice，我们上传个.user.ini，来包含下a.jpg，让它在php文件里面被解析<br>
+<img src="https://zhangzy999.github.io//post-images/1589515762119.png" alt="" loading="lazy"><br>
+这是.user.ini的内容，好了，我们可以上传一波康康<br>
+<img src="https://zhangzy999.github.io//post-images/1589515814991.png" alt="" loading="lazy"><br>
+没毛病，成功辽，进入上传文件目录到index.php页面里面，然后菜刀或者蚁剑连接木马，顺利找到flag！<br>
+<img src="https://zhangzy999.github.io//post-images/1589515871604.png" alt="" loading="lazy"><br>
+总结下嗷，.user.ini可以来帮助我们解析图片马<br>
+其优势吧，在于无论服务器是nginx/apache/IIS，只要是以fastcgi或者cgi运行的php都可以用这个方法来搞一搞，但是有个致命的要求，就是说你的上传目录文件下面得有php文件才可以……<br>
+再者，我们复现环境的时候，康康它的源码，其实有个地方做的很不合理，就是过滤掉&quot;&lt;?&quot;的内容，对于用户来说很不友好，因为很多的jpg文件里面的数据区有&quot;&lt;?&quot;这种符号，这样就导致了我们普通的图片也无法上传（亲测），综上，本题get到的技能点：<br>
+1，.user.ini来解析木马<br>
+2，&lt;script&gt;标签来绕过&quot;&lt;?&quot;的限制（其实绝大多数情况下script标签也不能用……）<br>
+3，用图片的文件头来绕过exif_imagetype()函数的检测<br>
+本文的最后附上github上的题目项目8：<a href="https://github.com/team-su/SUCTF-2019/blob/master/Web/checkIn/src/html/index.php">题目环境</a><br>
+如有错误，b站私信up主”yuyu-宇“指出嗷~</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[CTF—Bugku：秋名山老司机(快速反弹POST)—来一起开车鸭~]]></title>
         <id>https://zhangzy999.github.io/post/qiumingshanlaosiji/</id>
