@@ -16,7 +16,7 @@
 
   </head>
   <body>
-    <div id="app" class="main px-4 flex flex-col lg:flex-row">
+    <div class="main px-4 flex flex-col lg:flex-row">
       <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
   <div class="lg:sticky top-0">
     <div class="sidebar-content">
@@ -30,9 +30,29 @@
       
         <div class="animated fadeInLeft" style="animation-delay: 0.4s">
           <p class="my-4 text-gray-600 font-light hidden lg:block">
-            文章目录
+            我是小张，一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。
           </p>
-          <div class="toc-container hidden lg:block">
+          <div class="animated fadeInLeft social-container hidden lg:block" style="animation-delay: 0.6s">
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
             
           </div>
         </div>
@@ -77,73 +97,60 @@
 </div>
 <div class="mask" onclick="closeMenu()">
 </div>
-      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
-        <h1 class="text-3xl font-bold lg:mt-16">日常生活—大佬们的博客地址</h1>
-        <div class="text-sm text-gray-700 lg:my-8">
-          2020-04-28 / 2 min read
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4">
+        <h2 class="latest-article text-lg text-gray-700 mb-8">
+          <i class="ri-article-line"></i>
+          最新文章
+        </h2>
+        
+  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${0 * 0.2}s` }">
+    
+      <a href="https://zhangzy999.github.io/post/suibianzhu/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
+        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3582485922,1626011992&amp;fm=26&amp;gp=0.jpg'">
         </div>
+      </a>
+    
+    <div class="content">
+      <a href="https://zhangzy999.github.io/post/suibianzhu/">
+        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">CTF-强网杯-“随便注”</h2>
+      </a>
+      <div class="post-abstract text-gray-700 font-light my-4">
         
-          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/dalaoboke.jpg" alt="">
-        
-        <div class="post-content yue">
-          <p>咳咳，第一个就是我的队长，想当年（两个月前），我还是个毛都不会的小屁孩（emm虽然现在也不怎么会），然后在一个比赛群里发现了七星哥哥，他那时候孤身一人参加了高校战疫比赛，拿到了97名我记得，emm虽然他自谦，但是在我这种小白的眼里确实很nb！！<br>
-然后他就建立了战队，我就追随大佬的脚步，成了我们队里的第一批队员。<br>
-七星很强的！现在开始pwn了已经，<s>每次有大牛的公开课，我们战队全指望他给我们录屏，所以我们战队也叫白嫖工作室</s>下面是他的博客地址，搭的比我好door♂了！<br>
-友链：<a href="http://qixingnet.top/">http://qixingnet.top/</a><br>
-我们的白嫖qq群（等你来白嫖，我们一起做白嫖怪）：613455190<br>
-<img src="https://zhangzy999.github.io//post-images/1588087082686.png" alt="" loading="lazy"></p>
-<p>咳咳，接下来这位大佬，我之前一有问题就奔向他！人也超级好超级帅超级聪明超级谦虚……的无敌堆堆！<br>
-一个双修web和pwn的大佬！<br>
-看到没，双修web和pwn诶，同是大一生，我望尘莫及555<br>
-所以在堆堆大佬的激励下（他总说自己不是大佬，脑壳痛），我准备也双修，emm，不过得是一段时间之后了<br>
-堆堆大佬的博客干货满满哟<br>
-友链：<a href="https://duitutu.cn">https://duitutu.cn</a><br>
-<img src="https://zhangzy999.github.io//post-images/1588087482160.png" alt="" loading="lazy"></p>
-<p>咳咳，接下来这位大佬是个美女哦~<br>
-魔法少女雪殇，实力强的一批，大概战斗力能顶上十个我，sql注入，xss，文件上传，网站挂马，模板漏洞……无一不是她的强项，关键是是个小姐姐！还在等什么，快去她的博客逛逛吧！！！<br>
-友链：<a href="http://z.mofalongmao.xyz/wordpress/">http://z.mofalongmao.xyz/wordpress/</a><br>
-<img src="https://zhangzy999.github.io//post-images/1588687239795.png" alt="" loading="lazy"></p>
-<p>下面是R1v0ir大佬的博客~颜值超高哒！<br>
-友链：<a href="https://r1v0ir.github.io/">https://r1v0ir.github.io/</a><br>
-<img src="https://zhangzy999.github.io//post-images/1589271997965.png" alt="" loading="lazy"></p>
-<p>再次感谢大佬们的倾心相授，信息安全和CTF长路漫漫，终生学习，不断进步。<br>
-路在脚下，心在远方。</p>
+      </div>
+      <div class="text-gray-400 text-sm font-light">2020-04-28 / 4 min read</div>
+    </div>
+  </section>
 
+  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${1 * 0.2}s` }">
+    
+      <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
+        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3842647101,4253857314&amp;fm=26&amp;gp=0.jpg'">
         </div>
-
+      </a>
+    
+    <div class="content">
+      <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/">
+        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">攻防世界web新手区javascript审计-&#34;sample js&#34;</h2>
+      </a>
+      <div class="post-abstract text-gray-700 font-light my-4">
         
-          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/Sxug4cGgv/">
-            <span class="flex-auto">日常生活记录</span>
-          </a>
-        
+      </div>
+      <div class="text-gray-400 text-sm font-light">2020-04-27 / 4 min read</div>
+    </div>
+  </section>
 
-
-        <div class="flex justify-between py-8">
-          
-            <div class="prev-post">
-              <a href="https://zhangzy999.github.io/post/qiumingshanlaosiji/">
-                <h3 class="post-title">
-                  <i class="ri-arrow-left-line"></i>
-                  CTF—Bugku：秋名山老司机(快速反弹POST)—来一起开车鸭~
-                </h3>
-              </a>
-            </div>
-          
-
-          
-            <div class="next-post">
-              <a href="https://zhangzy999.github.io/post/anbao/">
-                <h3 class="post-title">
-                  日常生活—欢迎加入暗堡高智商俱乐部！
-                  <i class="ri-arrow-right-line"></i>
-                </h3>
-              </a>
-            </div>
+        <div class="read-more">
           
         </div>
+        <div class="index-page">
+          <div class="pagination-container animated fadeIn">
+  
+    <a href="https://zhangzy999.github.io/" class="page-btn"><i class="ri-arrow-left-line"></i> 上一页</a>
+  
+  
+</div>
 
-        
-
+        </div>
       </div>
     </div>
 
