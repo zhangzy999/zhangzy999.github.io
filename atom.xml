@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-06-01T03:11:45.077Z</updated>
+    <updated>2020-06-01T03:15:14.375Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -32,20 +32,20 @@ srand(unsigned)time(NULL))使用系统定时/计数器的值作为随机种子�
 <h1 id="解题">解题</h1>
 <h2 id="题目分析">题目分析</h2>
 <p>我们拿到附件后，先运行一下看看程序是什么功能<br>
-<img src="https://zhangzy999.github.io//post-images/1590979884236.png" alt="" loading="lazy"><br>
+<img src="https://zhangzy999.github.io//post-images/1590981254204.png" alt="" loading="lazy"><br>
 大致就是让我们输入名字，然后让我们猜随机数<br>
 我们看看程序开启了哪些保护<br>
-<img src="https://zhangzy999.github.io//post-images/1590979923609.png" alt="" loading="lazy"><br>
+<img src="https://zhangzy999.github.io//post-images/1590981270245.png" alt="" loading="lazy"><br>
 看到保护之后瞬间不想做了:-(    金丝雀 nx 地址随机化 神马的都开了 （话说我好像在新手区）<br>
 不管了，IDA分析一下  先看main函数的代码  发现了几个有意思的点<br>
-<img src="https://zhangzy999.github.io//post-images/1590980021878.png" alt="" loading="lazy"><br>
+<img src="https://zhangzy999.github.io//post-images/1590981279421.png" alt="" loading="lazy"><br>
 首先是gets输入名字  输入的字符串存到v9变量里面  那么漏洞应该就在这里没错了<br>
 接下来设置了一个随机数种子，当然，这个随机数种子的随机性肯定是没问题的<br>
 接下来是个for循环，让我们猜10个随机数，如果失败就退出程序，如果成功就运行for循环外面的那个函数<br>
 我们跟进去那个函数看看<br>
-<img src="https://zhangzy999.github.io//post-images/1590980242481.png" alt="" loading="lazy"><br>
+<img src="https://zhangzy999.github.io//post-images/1590981291748.png" alt="" loading="lazy"><br>
 奈斯，直接cat flag，所以我们的任务就是来猜数字，不过是随机数，我们肯定即使是欧皇附体也是猜不到的，所以考虑gets那里溢出来覆盖随机数种子seed[0]，让种子变成一个常数，那么每次的随机数都一样，自然也就可预测了，我们查看一下偏移量<br>
-<img src="https://zhangzy999.github.io//post-images/1590980418344.png" alt="" loading="lazy"><br>
+<img src="https://zhangzy999.github.io//post-images/1590981299498.png" alt="" loading="lazy"><br>
 然后就直接写exp</p>
 <h2 id="编写exp">编写exp</h2>
 <p>这个exp比之前的要略微复杂一些，经过查资料发现ctypes这个包很奈斯，里面的cdll.LoadLibrary()函数可以在在脚本中加载动态库，同时又能调用库中的函数，那么我们直接可以通过调用对象的srand()方法来确定种子，那我们就不用再编写c语言程序来确定随机数了，比较方便哈<br>
