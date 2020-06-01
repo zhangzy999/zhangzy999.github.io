@@ -30,9 +30,29 @@
       
         <div class="animated fadeInLeft" style="animation-delay: 0.4s">
           <p class="my-4 text-gray-600 font-light hidden lg:block">
-            文章目录
+            我是小张，一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。
           </p>
-          <div class="toc-container hidden lg:block">
+          <div class="animated fadeInLeft social-container hidden lg:block" style="animation-delay: 0.6s">
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
             
           </div>
         </div>
@@ -77,87 +97,33 @@
 </div>
 <div class="mask" onclick="closeMenu()">
 </div>
-      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
-        <h1 class="text-3xl font-bold lg:mt-16">攻防世界web新手区javascript审计-&#34;sample js&#34;</h1>
-        <div class="text-sm text-gray-700 lg:my-8">
-          2020-04-27 / 4 min read
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4">
+        <h2 class="text-lg text-gray-700 mb-8">
+          <i class="ri-bookmark-line"></i> 整数溢出
+        </h2>
+        
+  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${0 * 0.2}s` }">
+    
+      <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
+        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow.jpg'">
         </div>
+      </a>
+    
+    <div class="content">
+      <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/">
+        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">攻防世界pwn新手区—int_overflow</h2>
+      </a>
+      <div class="post-abstract text-gray-700 font-light my-4">
         
-          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3842647101,4253857314&amp;fm=26&amp;gp=0.jpg" alt="">
-        
-        <div class="post-content yue">
-          <p>打开环境，浏览器弹出窗口提示我们输入密码<br>
-<img src="https://zhangzy999.github.io//post-images/1587959009848.png" alt="" loading="lazy"></p>
-<p>我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”<br>
-得到一串js代码，应该是让我们审计js代码没跑了o.o<br>
-<img src="https://zhangzy999.github.io//post-images/1587959071008.png" alt="" loading="lazy"></p>
-<pre><code class="language-JavaScript">    function dechiffre(pass_enc){           //这一部分是定义了一个函数dechiffre,参数为pass_enc
-        var pass = &quot;70,65,85,88,32,80,65,83,83,87,79,82,68,32,72,65,72,65&quot;;     //定义了pass字符串
-        var tab  = pass_enc.split(',');     //定义了tab变量，其中.split()方法是将一个字符串分割为字符数组，括号里单引号下的逗号是按逗号分割
-                var tab2 = pass.split(',');     //tab2变量是对pass字符串进行的分割
-                var i,j,k,l=0,m,n,o,p = &quot;&quot;;     // 定义了许多变量，其中未被赋值的变量为undefined
-                i = 0;
-                j = tab.length;     //.length是返回tab数组的长度，j=36
-                k = j + (l) + (n=0);
-                n = tab2.length;    // 先定义了n=0，k=18+0+0=18     然后给n赋值n=18
-                for(i = (o=0); i &lt; (k = j = n); i++ )       //条件是i=0,i&lt;18(把n的值赋给j，再把j的值赋给k)
-                {
-                    o = tab[i-l];       //先把tab[i-1]的值赋给o但是我们会发现，后面紧接着有把tab2[i]的值赋给o，这一条语句相当于无用
-                    p += String.fromCharCode((o = tab2[i]));    //上面定义了变量p=“”,String.fromCharCode()方法是把Unicode编码转化为字符串
-                    if(i == 5)
-                        break;        
-                 }      // 通过运行此程序段，并且加上document.write(p+”&lt;br/&gt;”);输出p的值我们发现p=FAUX P
-                 for(i = (o=0); i &lt; (k = j = n); i++ ){     // 第二个for循环，i=0，i&lt;18,i++ 
-                        o = tab[i-l];
-                        if(i &gt; 5 &amp;&amp; i &lt; k-1)
-                             p += String.fromCharCode((o = tab2[i]));      //该条循环与上个循环相似，最终发现输出的p=FAUX PASSWORD HAH
-                        }
-        p += String.fromCharCode(tab2[17]);   
-        pass = p;
-        return pass;    //完整的p是p=p=FAUX PASSWORD HAHA（假的密码哈哈）😢
-    }
-    //最终函数返回p，但仔细观察我们发现p始终与tab2挂钩，而tab2的值是pass分割成数组的值，pass是定值，也就是说我们函数的参数pass_enc在这个函数里无用！
-    String[&quot;fromCharCode&quot;](dechiffre(&quot;\x35\x35\x2c\x35\x36\x2c\x35\x34\x2c\x37\x39\x2c\x31\x31\x35\x2c\x36\x39\x2c\x31\x31\x34\x2c\x31\x31\x36\x2c\x31\x30\x37\x2c\x34\x39\x2c\x35\x30&quot;));
-    h = window.prompt('Enter password');
-    alert( dechiffre(h) );
-</code></pre>
-<p>以上我用注释的形式来为大家解释了每一条语句的作用，如果你是比我还萌的萌新，仔细看看肯定是会有收获的（狗头保命）<br>
-通过分析我们发现了我们传入的参数p对函数最后返回的结果毫无影响，<strong>因为无论我们输入什么都存到了tab里，而整个函数是对tab2这个数组的操作，无论我们输入什么，最终页面都返回给我们faux password haha</strong>,所以通过分析，那一串16进制的数字转码后应该就是flag了，因为它孤零零的在那里，前不着村后不着店，煞是诡异。。。<br>
-所以我们就自己写js代码，把他翻译出来，bingo!<br>
-首先我们先把那一串\x的给翻译成ascii，在python中自动完成：<br>
-<img src="https://zhangzy999.github.io//post-images/1587970672958.png" alt="" loading="lazy"><br>
-然后直接调用fromCharCode方法得到flag</p>
-<pre><code class="language-JavaScript">var password = String.fromCharCode(55,56,54,79,115,69,114,116,107,49,50);
-console.log(password);
-</code></pre>
-<p><img src="https://zhangzy999.github.io//post-images/1587971171189.png" alt="" loading="lazy"><br>
-以上就是本题的解法，个人认为该题目还是有那么一丢丢难度的（毕竟我js不太好😶）</p>
+      </div>
+      <div class="text-gray-400 text-sm font-light">2020-06-01 / 4 min read</div>
+    </div>
+  </section>
 
-        </div>
-
-        
-          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/QUggXdyrg/">
-            <span class="flex-auto">代码审计</span>
-          </a>
-        
-
-
-        <div class="flex justify-between py-8">
-          
-            <div class="prev-post">
-              <a href="https://zhangzy999.github.io/post/suibianzhu/">
-                <h3 class="post-title">
-                  <i class="ri-arrow-left-line"></i>
-                  CTF-强网杯-“随便注”
-                </h3>
-              </a>
-            </div>
-          
-
-          
-        </div>
-
-        
+        <div class="pagination-container animated fadeIn">
+  
+  
+</div>
 
       </div>
     </div>

