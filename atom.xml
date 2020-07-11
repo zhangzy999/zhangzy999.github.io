@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>柠檬的博客</title>
-    <updated>2020-07-11T14:41:10.314Z</updated>
+    <updated>2020-07-11T14:42:24.216Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -33,7 +33,7 @@ free功能：<br>
 message功能：<br>
 可以写入留言信息，message指针位于bss段，同时指向bss段某个位置，我们可以写入留言，然后立即调用strlen函数进行一些检查，那么我们可以考虑在message指针这个部位伪造一个chunk，修改message指针到strlen函数的地址，然后我们写入system的地址，这样函数就给我们调用system了。<br>
 综上所述，泄露system地址，然后利用heap overflow伪造一个bss_chunk，然后我们free。（值得一提的是，我们在这之前，bss_chunk_data指针-0x4的位置应该是伪造的chunk的size域，而这个地方恰好是记录了我们add了多少次chunk的变量，所以在exp里我们用了一个for循环来申请chunk，使其变为0x40，来伪造其size。之后我们可以用message功能，编辑信息，伪造next chunk的size。）free之后我们malloc，就得到了一个可控指针，我们劫持strlen函数改为system，传入参数&quot;;/bin/sh\x00&quot;，举个例子，system(&quot;ls;/bin/sh&quot;)相当于分别传入参数ls和binsh，大概就是这个原理，直接写exp</p>
-<pre><code>from pwn import *
+<pre><code class="language-python">from pwn import *
 
 context.terminal = ['gnome-terminal', '-x', 'sh', '-c']
 libc = ELF('./libc.so.6')
